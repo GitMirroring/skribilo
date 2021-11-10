@@ -2,6 +2,7 @@
 ;;; -*- coding: iso-8859-1 -*-
 ;;;
 ;;; Copyright 2005, 2006, 2007, 2009  Ludovic Courtès  <ludo@gnu.org>
+;;; Copyright 2021 Arun Isaac <arunisaac@systemreboot.net>
 ;;;
 ;;;
 ;;; This file is part of Skribilo.
@@ -105,7 +106,9 @@
 
 
 (define-public *skribe-rc-directory*
-  (string-append (getenv "HOME") "/" ".skribilo"))
+  (let ((home (or (getenv "HOME")
+                  (passwd:dir (getpwuid (getuid))))))
+    (string-append home "/" ".skribilo")))
 
 
 ;;; In and out ports
