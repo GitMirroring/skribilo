@@ -2,6 +2,7 @@
 ;;;
 ;;; Copyright 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2018, 2020  Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright 2003, 2004  Manuel Serrano
+;;; Copyright 2021 Arun Isaac <arunisaac@systemreboot.net>
 ;;;
 ;;;
 ;;; This file is part of Skribilo.
@@ -631,7 +632,11 @@
              (display "<head>\n")
              (display "<meta http-equiv=\"Content-Type\" content=\"text/html;")
              (format #t "charset=~A\">\n" (engine-custom (find-engine 'html)
-                                                      'charset)))
+                                                         'charset))
+             (let ((head (engine-custom e 'head)))
+               (when head
+                 (display head)
+                 (newline))))
    :after "</head>\n\n")
 
 ;*---------------------------------------------------------------------*/
@@ -796,8 +801,7 @@
 (markup-writer '&html-header-style
    :before " <style type=\"text/css\">\n  <!--\n"
    :action (lambda (n e)
-	      (let ((hd (engine-custom e 'head))
-		    (icss (let ((ic (engine-custom e 'inline-css)))
+	      (let ((icss (let ((ic (engine-custom e 'inline-css)))
 			     (if (string? ic)
 				 (list ic)
 				 ic))))
@@ -809,7 +813,6 @@
 		 (display "  span.sc { font-variant: small-caps }\n")
 		 (display "  span.sf { font-family: sans-serif }\n")
 		 (display "  span.skribetitle { font-family: sans-serif; font-weight: bolder; font-size: x-large; }\n")
-		 (when hd (display (format #f "  ~a\n" hd)))
 		 (when (pair? icss)
 		    (for-each (lambda (css)
 				 (let ((p (open-input-file css)))
