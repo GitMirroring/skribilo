@@ -142,7 +142,7 @@
 	 :custom `(;; the icon associated with the URL
 		   (favicon #f)
 		   ;; charset used
-		   (charset "ISO-8859-1")
+		   (charset "UTF-8")
 		   ;; enable/disable Javascript
 		   (javascript #f)
 		   ;; user html head
