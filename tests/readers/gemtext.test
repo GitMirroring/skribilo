@@ -1,0 +1,133 @@
+;;; Exercise Gemtext reader.                  -*- Scheme -*-
+;;;
+;;; Copyright © 2022 Arun Isaac <arunisaac@systemreboot.net>
+;;;
+;;;
+;;; This file is part of Skribilo.
+;;;
+;;; Skribilo is free software: you can redistribute it and/or modify
+;;; it under the terms of the GNU General Public License as published by
+;;; the Free Software Foundation, either version 3 of the License, or
+;;; (at your option) any later version.
+;;;
+;;; Skribilo is distributed in the hope that it will be useful,
+;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;; GNU General Public License for more details.
+;;;
+;;; You should have received a copy of the GNU General Public License
+;;; along with Skribilo.  If not, see <http://www.gnu.org/licenses/>.
+
+(define-module (tests gemtext)
+  #:use-module (srfi srfi-64)
+  #:use-module (ice-9 match)
+  #:use-module (skribilo reader))
+
+(define make-gemtext-reader
+  (reader:make (lookup-reader 'gemtext)))
+
+(define-syntax-rule (match? exp pattern)
+  (match exp
+    (pattern #t)
+    (_ #f)))
+
+
+
+(test-begin "gemtext")
+
+(test-assert "basic gemtext document"
+  (match? (call-with-input-string "# Heading
+* Mercury
+* Gemini
+* Apollo
+## Subheading
+
+### Subsubheading
+
+> I contend that text-based websites should not exceed in size the major works of Russian literature.
+
+# Links
+
+=>https://example.com A cool website
+=>gopher://example.com      An even cooler gopherhole
+=> gemini://example.com A supremely cool Gemini capsule
+=>   sftp://example.com
+
+```
+This is a preformatted block.
+```
+
+```alt
+This is a preformatted block with \"alt text\".
+```"
+            (make-gemtext-reader))
+          `(document
+            (section #:title "Heading" #:number #f
+                     (itemize (item "Mercury")
+                              (item "Gemini")
+                              (item "Apollo"))
+                     (subsection #:title "Subheading" #:number #f
+                                 (subsubsection #:title "Subsubheading" #:number #f
+                                                (blockquote "> I contend that text-based websites should not exceed in size the major works of Russian literature."))))
+            (section #:title "Links" #:number #f
+                     (itemize (item (ref #:url "https://example.com" #:text "A cool website"))
+                              (item (ref #:url "gopher://example.com" #:text "An even cooler gopherhole"))
+                              (item (ref #:url "gemini://example.com" #:text "A supremely cool Gemini capsule"))
+                              (item (ref #:url "sftp://example.com")))
+                     (pre "This is a preformatted block.\n")
+                     (pre "This is a preformatted block with \"alt text\".\n")))))
+
+(test-assert "do not join short lines into paragraph"
+  (match? (call-with-input-string "Foo
+Bar"
+            (make-gemtext-reader))
+          `(document
+            (paragraph "Foo")
+            (paragraph "Bar"))))
+
+(test-assert "join short lines into paragraphs"
+  (match? (call-with-input-string "Foo
+Bar"
+            (make-gemtext-reader #:join-lines? #t))
+          `(document
+            (paragraph "Foo Bar"))))
+
+(test-assert "do not number sections"
+  (match? (call-with-input-string "# Foo
+## Bar"
+            (make-gemtext-reader))
+          `(document
+            (section #:title "Foo" #:number #f
+                     (subsection #:title "Bar" #:number #f)))))
+
+(test-assert "number sections"
+  (match? (call-with-input-string "# Foo
+## Bar"
+            (make-gemtext-reader #:section-numbers? #t))
+          `(document
+            (section #:title "Foo" #:number #t
+                     (subsection #:title "Bar" #:number #t)))))
+
+(test-assert "break up links separated by blank lines into separate lists"
+  (match? (call-with-input-string "=>https://example.com A cool website
+=>gopher://example.com      An even cooler gopherhole
+
+=> gemini://example.com A supremely cool Gemini capsule
+=>   sftp://example.com"
+            (make-gemtext-reader))
+          `(document
+            (itemize (item (ref #:url "https://example.com" #:text "A cool website"))
+                     (item (ref #:url "gopher://example.com" #:text "An even cooler gopherhole")))
+            (itemize (item (ref #:url "gemini://example.com" #:text "A supremely cool Gemini capsule"))
+                     (item (ref #:url "sftp://example.com"))))))
+
+(test-assert "ignore blank lines that have a non-zero number of whitespace characters"
+  (match? (call-with-input-string "Foo
+  
+Bar"
+            (make-gemtext-reader))
+          `(document
+            (paragraph "Foo")
+            (paragraph "Bar"))))
+
+(test-end "gemtext")

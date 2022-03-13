@@ -66,6 +66,15 @@ fi
 AM_CONDITIONAL([BUILD_RSS2_READER],
   [test "x$have_sxml_simple$have_htmlprag" == "xyesyes"])
 
+# Check for SRFI-171, needed for the `gemtext' reader.
+GUILE_MODULE_AVAILABLE([have_srfi_171], [(srfi srfi-171)])
+if test "x$have_srfi_171" != "xyes"; then
+  AC_MSG_WARN([SRFI-171 needed by the `gemtext' reader is missing.])
+fi
+
+AM_CONDITIONAL([BUILD_GEMTEXT_READER],
+  [test "x$have_srfi_171" == "xyes"])
+
 # Look for `convert', from ImageMagick.
 AC_PATH_PROG([CONVERT], [convert])
 if test "x$CONVERT" == "x"; then

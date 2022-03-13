@@ -1,5 +1,6 @@
 # Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2012,
 #   2015, 2018, 2020 Ludovic Courtès <ludo@gnu.org>
+# Copyright 2022 Arun Isaac <arunisaac@systemreboot.net>
 #
 # This file is part of Skribilo.
 #
@@ -59,6 +60,15 @@ EXTRA_DIST += skribilo/reader/rss-2.scm
 
 endif !BUILD_RSS2_READER
 
+if BUILD_GEMTEXT_READER
+
+readers += skribilo/reader/gemtext.scm
+
+else !BUILD_GEMTEXT_READER
+
+EXTRA_DIST += skribilo/reader/gemtext.scm
+
+endif !BUILD_GEMTEXT_READER
 
 engines =						\
   skribilo/engine/base.scm skribilo/engine/context.scm	\

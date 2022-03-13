@@ -26,5 +26,15 @@ EXTRA_DIST = $(TESTS) readers/rss-2.test
 
 endif !BUILD_RSS2_READER
 
+if BUILD_GEMTEXT_READER
+
+TESTS += readers/gemtext.test
+EXTRA_DIST = $(TESTS)
+
+else !BUILD_GEMTEXT_READER
+
+EXTRA_DIST = $(TESTS) readers/gemtext.test
+
+endif !BUILD_GEMTEXT_READER
 
 CLEANFILES = ast.log resolve.log rss-2.log location.log info.log

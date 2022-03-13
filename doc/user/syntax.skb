@@ -211,7 +211,26 @@ documents that can be output in variety of formats (see ,(numref :text
 [Chapter] :ident "engines")).  The downside is that, being a very simple
 markup-less document format, there are many things that cannot be done
 using it, most notably tables, bibliographies, and cross-references.]))
-   
+
+   (section :title [The Gemtext Syntax] :ident "gemtext-syntax"
+     (p [,(ref
+:url "https://gemini.circumlunar.space/docs/gemtext.gmi"
+:text "Gemtext"), the lightweight markup language used by the ,(ref
+:url "https://gemini.circumlunar.space" :text "Gemini protocol"), is
+supported as an input syntax. To use it, just pass ,(tt
+[--reader=gemtext]) to the compiler. When used programmatically, the
+Gemtext reader can be customized using the following options.])
+
+     (doc-markup 'make-gemtext-reader
+                 '((:join-lines? [If ,(code "#t"), lines which are not
+separated by a blank line are joined into a single paragraph. This is
+a relaxation of the Gemtext standard, and is not done by default.])
+                   (:section-numbers? [If ,(code "#t"), sections are
+numbered. Else, they are not.]))
+                 :common-args '()
+                 :source "skribilo/reader/gemtext.scm"
+	         :idx *function-index*))
+
    (section :title [The RSS 2.0 Syntax]
             :ident "rss2-syntax"
       
