@@ -189,8 +189,8 @@
 		   (chapter-number->string number->string)
 		   (chapter-file #f)
 		   ;; section configuration
-		   (section-title-start "<h3>")
-		   (section-title-stop "</h3>")
+		   (section-title-start "<h2>")
+		   (section-title-stop "</h2>")
 		   (section-title-background #f)
 		   (section-title-foreground #f)
 		   (section-title-number-separator " ")
