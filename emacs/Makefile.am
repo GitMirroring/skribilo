@@ -1,7 +1,7 @@
 EXTRA_DIST     = skribe.el.in
 lisp_DATA      = skribe.el skribilo.el
 
-CLEANFILES     = $(lisp_DATA)
+CLEANFILES     = skribe.el
 
 include $(top_srcdir)/substitute.am
 
