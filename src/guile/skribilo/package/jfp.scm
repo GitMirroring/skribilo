@@ -1,7 +1,7 @@
 ;;; jfp.scm  --  The Skribe style for JFP articles.
 ;;;
 ;;; Copyright 2003, 2004  Manuel Serrano
-;;; Copyright 2007, 2020  Ludovic Courtès <ludo@chbouib.org>
+;;; Copyright 2007, 2020, 2022 Ludovic Courtès <ludo@chbouib.org>
 ;;;
 ;;;
 ;;; This file is part of Skribilo.
@@ -26,9 +26,9 @@
   #:autoload   (skribilo output)          (output)
   #:autoload   (skribilo evaluator)       (evaluate-document)
   #:use-module (skribilo lib)
-  #:autoload   (skribilo biblio template) (output-bib-entry-template)
+  #:use-module (skribilo biblio template)
   #:autoload   (skribilo utils keywords)  (the-body)
-  #:use-module (skribilo package base)
+  #:use-module ((skribilo package base) #:hide (author))
   #:use-module (srfi srfi-1)
 
   #:use-module (skribilo utils syntax)
@@ -228,37 +228,44 @@
 		 (output-bib-entry-template n e
 
 		  (case (markup-option n 'kind)
-		     ((techreport)
-		      `(author (" (" year ")") " " (or title url) ". " 
-			       number ", " institution ", "
-			       address ", " month ", "
-			       ("pp. " pages) "."))
-		     ((article)
-		      `(author (" (" year ")") " " (or title url) ". "
-			       journal ", " volume ", " ("(" number ")") ", "
-			       address ", " month ", " 
-			       ("pp. " pages) "."))
-		     ((inproceedings)
-		      `(author (" (" year ")") " " (or title url) ". " 
-			       book(or title url) ", " series ", " ("(" number ")") ", "
-			       address ", " month ", " 
-			       ("pp. " pages) "."))
-		     ((book)
-		      '(author (" (" year ")") " " (or title url) ". " 
-			       publisher ", " address
-			       ", " month ", " ("pp. " pages) "."))
-		     ((phdthesis)
-		      '(author (" (" year ")") " " (or title url) ". " type ", " 
-			       school ", " address
-			       ", " month "."))
-		     ((misc)
-		      '(author (" (" year ")") " " (or title url) ". "
-			       publisher ", " address
-			       ", " month "."))
-		     (else
-		      '(author (" (" year ")") " " (or title url) ". "
-			       publisher ", " address
-			       ", " month ", " ("pp. " pages) "."))))))
+		    ((techreport)
+		     (bibliography-template
+                      author (" (" year ")") " " (or title url) ". "
+		      number ", " institution ", "
+		      address ", " month ", "
+		      ("pp. " pages) "."))
+		    ((article)
+		     (bibliography-template
+                      author (" (" year ")") " " (or title url) ". "
+		      journal ", " volume ", " ("(" number ")") ", "
+		      address ", " month ", "
+		      ("pp. " pages) "."))
+		    ((inproceedings)
+		     (bibliography-template
+                      author (" (" year ")") " " (or title url) ". "
+		      booktitle (or title url) ", " series ", " ("(" number ")") ", "
+		      address ", " month ", "
+		      ("pp. " pages) "."))
+		    ((book)
+		     (bibliography-template
+                      author (" (" year ")") " " (or title url) ". "
+		      publisher ", " address
+		      ", " month ", " ("pp. " pages) "."))
+		    ((phdthesis)
+		     (bibliography-template
+                      author (" (" year ")") " " (or title url) ". " type ", "
+		      school ", " address
+		      ", " month "."))
+		    ((misc)
+		     (bibliography-template
+                      author (" (" year ")") " " (or title url) ". "
+		      publisher ", " address
+		      ", " month "."))
+		    (else
+		     (bibliography-template
+                      author (" (" year ")") " " (or title url) ". "
+		      publisher ", " address
+		      ", " month ", " ("pp. " pages) "."))))))
    ;; abstract
    (markup-writer 'jfp-abstract le
        :options '(postscript)

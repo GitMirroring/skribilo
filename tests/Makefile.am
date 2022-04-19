@@ -11,6 +11,7 @@ TEST_LOG_DRIVER =							\
 
 TESTS =						\
   ast.test					\
+  biblio.test					\
   resolve.test					\
   engines/info.test				\
   location.test

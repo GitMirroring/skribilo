@@ -55,13 +55,11 @@
            bib-sort-refs/number
 
            ;; error conditions
-           &biblio-error &biblio-entry-error &biblio-template-error
+           &biblio-error &biblio-entry-error
            &biblio-parse-error
-           biblio-error? biblio-entry-error? biblio-template-error?
+           biblio-error? biblio-entry-error?
            biblio-parse-error?
            biblio-entry-error:entry
-           biblio-template-error:expression
-           biblio-template-error:template
            biblio-parse-error:sexp))
 
 ;;; Commentary:
@@ -86,11 +84,6 @@
   biblio-entry-error?
   (entry biblio-entry-error:entry))
 
-(define-condition-type &biblio-template-error &biblio-error
-  biblio-template-error?
-  (expression  biblio-template-error:expression)
-  (template    biblio-template-error:template))
-
 (define-condition-type &biblio-parse-error &biblio-error
   biblio-parse-error?
   (sexp biblio-parse-error:sexp))
@@ -110,11 +103,6 @@
                (format (current-error-port)
                        (G_ "invalid bibliography entry: ~a~%")
                        entry))))
-	((biblio-template-error? c)
-	 (format (current-error-port)
-                 (G_ "invalid bibliography entry template: '~a', in '~a'~%")
-                 (biblio-template-error:expression c)
-                 (biblio-template-error:template c)))
         ((biblio-parse-error? c)
          (format (current-error-port)
                  (G_ "invalid bibliography entry s-exp: '~a'~%")

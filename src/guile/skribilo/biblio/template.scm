@@ -1,7 +1,7 @@
 ;;; template.scm  --  Template system for bibliography entries.
 ;;;
 ;;; Copyright 2003, 2004  Manuel Serrano
-;;; Copyright 2006, 2007, 2015, 2018 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright 2006, 2007, 2015, 2018, 2022 Ludovic CourtÃ¨s <ludo@gnu.org>
 ;;;
 ;;;
 ;;; This file is part of Skribilo.
@@ -32,14 +32,14 @@
 
   #:use-module (skribilo utils syntax)
 
-  #:export (evaluate-bib-entry-template
-           output-bib-entry-template
-           make-bib-entry-template/default
-           make-bib-entry-template/skribe))
+  #:export (bibliography-template
+            output-bib-entry-template
+            make-bib-entry-template/default
+            make-bib-entry-template/skribe))
 
 (skribilo-module-syntax)
 
-;;; Author: Manuel Serrano, Ludovic Courtès
+;;; Author: Manuel Serrano, Ludovic CourtÃ¨s
 ;;;
 ;;; Commentary:
 ;;;
@@ -57,85 +57,77 @@
 ;;; Outputting a bibliography entry template for a specific entry.
 ;;;
 
-(define (evaluate-bib-entry-template bib template . rest)
-  ;; An interpreter for the bibliography template language.  Overview of the
-  ;; language:
-  ;;
-  ;;  form := (cond-list|special-sexp|string|field-spec)
-  ;;
-  ;;  field-spec   := ("author"|"title"|...)
-  ;;  cond-list    := (form+)
-  ;;  special-sexp := (("if" form form form?)|("or" form*))
-  ;;
-  ;; A `cond-list' gets issued only if all its elements are true.
+(define-syntax-rule (define-template-engine instantiate literal ...)
+  "Define INSTANTIATE as a macro that, given a template, produces a
+one-argument procedure to instantiate that template given a '&bib-entry'
+node.  LITERAL... is the list of literals, the name of valid markup options."
+  (begin
+    (define-public literal
+      (lambda (s)
+        (syntax-violation 'literal
+                          "template literal used outside of 'bibliography-template'"
+                          s)))
+    ...
 
-  (define get-field
-    (if (null? rest)
-        markup-option
-        (car rest)))
+    (define-syntax instantiate-body
+      (lambda (s)
+        (define (literal? id)
+          (any (lambda (l)
+                 (and (identifier? id)
+                      (free-identifier=? id l)))
+               #'(literal ...)))
 
-  (define (eval-cond-list sexp eval-sexp)
-    (let loop ((sexp   sexp)
-               (result '()))
-      (if (null? sexp)
-          (reverse! result)
-          (let ((head (eval-sexp (car sexp))))
-            (if (not head)
-                #f
-                (loop (cdr sexp)
-                      (cons head result)))))))
+        (syntax-case s (literal ... or if G_)
+          ((_ node str rest (... ...))
+           (string? (syntax->datum #'str))
+           #'(cons str (instantiate-body node rest (... ...))))
+          ((_ node (G_ str) rest (... ...))
+           (string? (syntax->datum #'str))
+           #'(cons (G_ str) (instantiate-body node rest (... ...))))
+          ((_ node (or options (... ...)) rest (... ...))
+           (every literal? #'(options (... ...)))
+           #'(cons (or (markup-option node 'options) (... ...))
+                   (instantiate-body node rest (... ...))))
+          ((_ node (if cond a b) rest (... ...))
+           (literal? #'cond)
+           #'(cons (if (markup-option node 'cond)
+                       (instantiate-body node a)
+                       (instantiate-body node b))
+                   (instantiate-body node rest (... ...))))
+          ((_ node (lst (... ...)) rest (... ...))
+           #'(append (let ((body (instantiate-body node lst (... ...))))
+                       (if (every ->bool body)
+                           body
+                           '()))
+                     (instantiate-body node rest (... ...))))
+          ((_ node literal rest (... ...))
+           #'(cons (markup-option node 'literal)
+                   (instantiate-body node rest (... ...))))
+          ...
+          ((_ node)
+           #''()))))
 
-  (define (eval-special-sexp sexp eval-sexp)
-    (let ((special (car sexp))
-          (formals (cdr sexp)))
-      (case special
-        ((or)
-         (any eval-sexp formals))
-        ((if)
-         (if (or (> (length formals) 3)
-                 (< (length formals) 2))
-             (raise (condition
-                     (&biblio-template-error (expression sexp)
-                                             (template template)))))
-         (let* ((if-cond (car formals))
-                (if-then (cadr formals))
-                (if-else (if (null? (cddr formals))
-                             #f
-                             (caddr formals)))
-                (result (eval-sexp if-cond)))
-           (if result
-               (eval-sexp if-then)
-               (eval-sexp if-else))))
-        (else
-         (eval-cond-list sexp eval-sexp)))))
+    (define-syntax-rule (instantiate body (... ...))
+      (lambda (node)
+        (instantiate-body node body (... ...))))))
 
-  (let loop ((template template))
-    (cond ((symbol? template)
-           (get-field bib template))
-          ((null? template)
-           #f)
-          ((pair? template)
-           (cond ((symbol? (car template))
-                  (eval-special-sexp template loop))
-                 (else
-                  (eval-cond-list template loop))))
-          ((string? template)
-           template)
-          (else
-           (raise (condition
-                   (&biblio-template-error (expression template)
-                                           (template template))))))))
+;; Define 'bibliography-template' as a macro that builds a procedure to
+;; instantiate a template from a '&bib-entry' node.
+(define-template-engine bibliography-template
+
+  ;; Keywords that may appear in the template.
+  author title url documenturl type
+  journal number volume series booktitle editor
+  school institution address
+  month year day
+  pages chapter publisher)
 
 
-(define* (output-bib-entry-template bib engine template
-                                    :optional (get-field markup-option))
+(define* (output-bib-entry-template bib engine template)
   ;; Output the fields of BIB (a bibliography entry) for ENGINE according to
   ;; TEMPLATE.  Example of templates are found below (e.g.,
   ;; `make-bib-entry-template/default').
-  (output (map (lambda (form)
-                 (evaluate-bib-entry-template bib form get-field))
-               template)
-          engine))
+  (output (template bib) engine))
 
 
 ;;;
@@ -147,98 +139,98 @@
 
   (case kind
     ((techreport)
-     `(author ". " (or title url documenturl) ". "
-              ;; TRANSLATORS: The next few msgids are fragments of
-              ;; bibliography items.
-              ,(G_ "Technical Report") " " number
-              (", " institution)
-              (", " address)
-              (", " month) " " year
-              (", pp. " pages) "."))
+     (bibliography-template author ". " (or title url documenturl) ". "
+                            ;; TRANSLATORS: The next few msgids are fragments of
+                            ;; bibliography items.
+                            (G_ "Technical Report") " " number
+                            (", " institution)
+                            (", " address)
+                            (", " month) " " year
+                            (", pp. " pages) "."))
     ((article)
-     `(author ". " (or title url documenturl) ". "
-              ,(G_ "In ") journal ", " volume
-              ("(" number ") ")", "
-              (address ", ") month " " year ", "
-              ("pp. " pages) "."))
+     (bibliography-template author ". " (or title url documenturl) ". "
+                            (G_ "In ") journal ", " volume
+                            ("(" number ") ")", "
+                            (address ", ") month " " year ", "
+                            ("pp. " pages) "."))
     ((inproceedings)
-     `(author ". " (or title url documenturl) ". "
-              ,(G_ "In ") booktitle ", "
-              (series ", ")
-              ("(" number ")")
-              ("pp. " pages ", ")
-              (publisher ", ")
-              (month " ") year "."))
+     (bibliography-template author ". " (or title url documenturl) ". "
+                            (G_ "In ") booktitle ", "
+                            (series ", ")
+                            ("(" number ")")
+                            ("pp. " pages ", ")
+                            (publisher ", ")
+                            (month " ") year "."))
     ((book) ;; FIXME:  Title should be in italics
-     '((or author editor)
-              ". " (or title url documenturl) ". "
-              publisher
-              (", " address)
-              (", " month)
-              ", " year
-              (", pp. " pages) "."))
+     (bibliography-template (or author editor)
+                            ". " (or title url documenturl) ". "
+                            publisher
+                            (", " address)
+                            (", " month)
+                            ", " year
+                            (", pp. " pages) "."))
     ((inbook)
-     `(author ". " (or title url documenturl) ". "
-              ,(G_ "In ") booktitle ", " publisher
-              (", " editor " (" ,(G_ "editor") ")")
-              (", " ,(G_ "Chapter ") chapter)
-              (", pp. " pages) ", "
-              (month " ") year "."))
+     (bibliography-template author ". " (or title url documenturl) ". "
+                            (G_ "In ") booktitle ", " publisher
+                            (", " editor " (" (G_ "editor") ")")
+                            (", " (G_ "Chapter ") chapter)
+                            (", pp. " pages) ", "
+                            (month " ") year "."))
     ((phdthesis)
-     `(author ". " (or title url documenturl)
-              ", " ,(G_ "PhD Thesis")
-              (", " (or school institution))
-              (", " address)
-              (", " month)
-              (if month " " ", ") year "."))
+     (bibliography-template author ". " (or title url documenturl)
+                            ", " (G_ "PhD Thesis")
+                            (", " (or school institution))
+                            (", " address)
+                            (", " month)
+                            (if month " " ", ") year "."))
     ((misc)
-     '(author ". " (or title url documenturl) ". "
-              (institution ", ")
-              (publisher ", ")
-              (address ", ")
-              (month " ") year ". "
-              (url ".")))
+     (bibliography-template author ". " (or title url documenturl) ". "
+                            (institution ", ")
+                            (publisher ", ")
+                            (address ", ")
+                            (month " ") year ". "
+                            (url ".")))
     (else
-     '(author ". " (or title url documenturl) ". "
-              (publisher ", ")
-              (address ", ")
-              (month " ") year ", "
-              ("pp. " pages) "."))))
+     (bibliography-template author ". " (or title url documenturl) ". "
+                            (publisher ", ")
+                            (address ", ")
+                            (month " ") year ", "
+                            ("pp. " pages) "."))))
 
 (define (make-bib-entry-template/skribe kind)
   ;; The awful template found by default in Skribe.
   (case kind
     ((techreport)
-     `(author " -- " (or title url documenturl) " -- "
-              ,(G_ "Technical Report") " " number ", " institution ", "
-              address ", " month ", " year ", "
-              ("pp. " pages) "."))
+     (bibliography-template author " -- " (or title url documenturl) " -- "
+                            (G_ "Technical Report") " " number ", " institution ", "
+                            address ", " month ", " year ", "
+                            ("pp. " pages) "."))
     ((article)
-     `(author " -- " (or title url documenturl) " -- "
-              journal ", " volume "" ("(" number ")") ", "
-              address ", " month ", " year ", "
-              ("pp. " pages) "."))
+     (bibliography-template author " -- " (or title url documenturl) " -- "
+                            journal ", " volume "" ("(" number ")") ", "
+                            address ", " month ", " year ", "
+                            ("pp. " pages) "."))
     ((inproceedings)
-     `(author " -- " (or title url documenturl) " -- "
-              booktitle ", " series ", " ("(" number ")") ", "
-              address ", " month ", " year ", "
-              ("pp. " pages) "."))
+     (bibliography-template author " -- " (or title url documenturl) " -- "
+                            booktitle ", " series ", " ("(" number ")") ", "
+                            address ", " month ", " year ", "
+                            ("pp. " pages) "."))
     ((book)
-     '(author " -- " (or title url documenturl) " -- "
-              publisher ", " address
-              ", " month ", " year ", " ("pp. " pages) "."))
+     (bibliography-template author " -- " (or title url documenturl) " -- "
+                            publisher ", " address
+                            ", " month ", " year ", " ("pp. " pages) "."))
     ((phdthesis)
-     '(author " -- " (or title url documenturl) " -- " type ", "
-              school ", " address
-              ", " month ", " year"."))
+     (bibliography-template author " -- " (or title url documenturl) " -- " type ", "
+                            school ", " address
+                            ", " month ", " year"."))
     ((misc)
-     '(author " -- " (or title url documenturl) " -- "
-              publisher ", " address
-              ", " month ", " year"."))
+     (bibliography-template author " -- " (or title url documenturl) " -- "
+                            publisher ", " address
+                            ", " month ", " year"."))
     (else
-     '(author " -- " (or title url documenturl) " -- "
-              publisher ", " address
-              ", " month ", " year ", " ("pp. " pages) "."))))
+     (bibliography-template author " -- " (or title url documenturl) " -- "
+                            publisher ", " address
+                            ", " month ", " year ", " ("pp. " pages) "."))))
 
 
 ;;; arch-tag: 5931579f-b606-442d-9a45-6047c94da5a2

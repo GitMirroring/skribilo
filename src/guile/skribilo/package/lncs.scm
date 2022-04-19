@@ -1,7 +1,7 @@
 ;;; lncs.scm  --  The Skribilo style for LNCS articles.
 ;;;
 ;;; Copyright 2003, 2004  Manuel Serrano
-;;; Copyright 2007, 2015, 2018, 2020  Ludovic Courtès <ludo@gnu.org>
+;;; Copyright 2007, 2015, 2018, 2020, 2022 Ludovic Courtès <ludo@gnu.org>
 ;;;
 ;;;
 ;;; This file is part of Skribilo.
@@ -24,10 +24,11 @@
   #:use-module (skribilo engine)
   #:use-module (skribilo writer)
   #:autoload   (skribilo output)         (output)
-  #:use-module (skribilo package base)
+  #:use-module ((skribilo package base) #:hide (author))
   #:autoload   (skribilo utils keywords) (the-options the-body)
-  #:autoload   (skribilo biblio template)(output-bib-entry-template
-                                         make-bib-entry-template/default)
+  #:use-module ((skribilo biblio template) #:hide (chapter))
+  #:use-module ((skribilo biblio template)
+                #:select ((chapter . biblio:chapter)))
   #:autoload   (skribilo biblio author)  (bib-sort/first-author-last-name
                                           abbreviate-author-first-names/family-first
                                           abbreviate-first-names)
@@ -211,64 +212,64 @@
   ;; Return the LNCS bibliography entry template for KIND.
   (case kind
     ((techreport)
-     `(author ": " (or title url documenturl) ". "
-              ;; TRANSLATORS: The next few msgids are fragments of
-              ;; bibliography items.
-              ,(G_ "Technical Report") " " number
-              (", " institution)
-              (", " address)
-              (", " pages)
-              (" (" year ")")))
+     (bibliography-template author ": " (or title url documenturl) ". "
+                            ;; TRANSLATORS: The next few msgids are fragments
+                            ;; of bibliography items.
+                            (G_ "Technical Report") " " number
+                            (", " institution)
+                            (", " address)
+                            (", " pages)
+                            (" (" year ")")))
     ((article)
-     `(author ": " (or title url documenturl) ". "
-              ,(G_ "In: ") journal ", " volume
-              ("(" number ")") ", "
-              (address ", ")
-              ("pp. " pages) (" (" year ")")))
+     (bibliography-template author ": " (or title url documenturl) ". "
+                            (G_ "In: ") journal ", " volume
+                            ("(" number ")") ", "
+                            (address ", ")
+                            ("pp. " pages) (" (" year ")")))
     ((inproceedings)
-     '(author ": " (or title url documenturl) ". "
-              ,(G_ "In: ") booktitle ", "
-              (series)
-              ("(" number "), ")
-              (publisher ", ")
-              ("pp. " pages)
-              (" (" year ")")))
+     (bibliography-template author ": " (or title url documenturl) ". "
+                            (G_ "In: ") booktitle ", "
+                            (series)
+                            ("(" number "), ")
+                            (publisher ", ")
+                            ("pp. " pages)
+                            (" (" year ")")))
     ((book)
-     '((or author editor) ": "
-       (or title url documenturl) ". "
-       publisher
-       (", " address)
-       (", " month)
-       ", " year
-       (", pp. " pages)))
+     (bibliography-template (or author editor) ": "
+                            (or title url documenturl) ". "
+                            publisher
+                            (", " address)
+                            (", " month)
+                            ", " year
+                            (", pp. " pages)))
     ((inbook)
-     `(author ": " (or title url documenturl) ". "
-              ,(G_ "In: ") booktitle ", " publisher
-              (", " editor " (" ,(G_ "editor") ")")
-              (", " ,(G_ "Chapter ") chapter)
-              (", pp. " pages)
-              (" (" year ")")))
+     (bibliography-template author ": " (or title url documenturl) ". "
+                            (G_ "In: ") booktitle ", " publisher
+                            (", " editor " (" (G_ "editor") ")")
+                            (", " (G_ "Chapter ") biblio:chapter)
+                            (", pp. " pages)
+                            (" (" year ")")))
     ((phdthesis)
-     `(author ": " (or title url documenturl)
-              ", " ,(G_ "PhD Thesis")
-              (", " (or school institution))
-              (", " address)
-              (", " month)
-              (if month " " ", ") year))
+     (bibliography-template author ": " (or title url documenturl)
+                            ", " (G_ "PhD Thesis")
+                            (", " (or school institution))
+                            (", " address)
+                            (", " month)
+                            (if month " " ", ") year))
     ((misc)
-     '(author ": " (or title url documenturl) ". "
-              (institution ", ")
-              (publisher ", ")
-              (address ", ")
-              (month " ") ("(" year ")")
-              (" " url)))
+     (bibliography-template author ": " (or title url documenturl) ". "
+                            (institution ", ")
+                            (publisher ", ")
+                            (address ", ")
+                            (month " ") ("(" year ")")
+                            (" " url)))
     (else
-     '(author ": " (or title url documenturl) ". "
-              (publisher ", ")
-              (address ", ")
-              (month " ")
-              (", pp. " pages)
-              (" (" year ")")))))
+     (bibliography-template author ": " (or title url documenturl) ". "
+                            (publisher ", ")
+                            (address ", ")
+                            (month " ")
+                            (", pp. " pages)
+                            (" (" year ")")))))
 
 
 ;;;
