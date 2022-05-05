@@ -330,7 +330,7 @@
          :after "\n%\n")
 
       ;; Abbreviate author first names like this: "Stallman, R.".
-      (markup-writer '&bib-entry-author
+      (markup-writer '&bib-entry-author latex
          :action (lambda (n e)
                    (let ((names (markup-body n)))
                      (evaluate-document
@@ -342,12 +342,12 @@
                       e))))
 
       ;; Journal and book titles must not be italicized.
-      (markup-writer '&bib-entry-booktitle
+      (markup-writer '&bib-entry-booktitle latex
          :action (lambda (n e)
                    (let ((title (markup-body n)))
                      (evaluate-document title e))))
 
-      (markup-writer '&bib-entry-journal
+      (markup-writer '&bib-entry-journal latex
          :action (lambda (n e)
                    (evaluate-document (markup-body n) e))))))
 
