@@ -120,7 +120,8 @@ node.  LITERAL... is the list of literals, the name of valid markup options."
   journal number volume series booktitle editor
   school institution address
   month year day
-  pages chapter publisher)
+  pages chapter publisher
+  doi note)
 
 
 (define* (output-bib-entry-template bib engine template)
