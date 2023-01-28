@@ -1089,34 +1089,34 @@
 			     (display "<td></td>")
 			     (loop (+ i 1))))))
 	      (define (toc-entry fe level)
-		 (let* ((c (car fe))
-			(ch (cdr fe))
-			(id (markup-ident c))
-			(f (html-file c e)))
-		    (unless (string? id)
+                (match fe
+                  ((c ch ...)
+		   (let ((id (markup-ident c))
+		         (f (html-file c e)))
+		     (unless (string? id)
 		       (skribe-error 'toc
 				     (format #f "invalid identifier '~a'" id)
 				     c))
-		    (display " <tr>")
-		    ;; blank columns
-		    (col level)
-		    ;; number
-		    (format #t "<td valign=\"top\" align=\"left\">~a</td>"
-			    (html-container-number c e))
-		    ;; title
-		    (format #t "<td colspan=\"~a\" width=\"100%\">"
-			    (- 4 level))
-		    (format #t "<a href=\"~a#~a\">"
-			    (if (and (*destination-file*)
-				     (string=? f (*destination-file*)))
-				""
-				(strip-ref-base (or f (*destination-file*) "")))
-			    (string-canonicalize id))
-		    (output (markup-option c :title) e)
-		    (display "</a></td>")
-		    (display "</tr>\n")
-		    ;; the children
-		    (for-each (lambda (n) (toc-entry n (+ 1 level))) ch)))
+		     (display " <tr>")
+		     ;; blank columns
+		     (col level)
+		     ;; number
+		     (format #t "<td valign=\"top\" align=\"left\">~a</td>"
+			     (html-container-number c e))
+		     ;; title
+		     (format #t "<td colspan=\"~a\" width=\"100%\">"
+			     (- 4 level))
+		     (format #t "<a href=\"~a#~a\">"
+			     (if (and (*destination-file*)
+				      (string=? f (*destination-file*)))
+			         ""
+			         (strip-ref-base (or f (*destination-file*) "")))
+			     (string-canonicalize id))
+		     (output (markup-option c :title) e)
+		     (display "</a></td>")
+		     (display "</tr>\n")
+		     ;; the children
+		     (for-each (lambda (n) (toc-entry n (+ 1 level))) ch)))))
 
 	      (let* ((c (markup-option n :chapter))
 		     (s (markup-option n :section))
