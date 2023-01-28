@@ -3,6 +3,7 @@
 ;;; Copyright 2003, 2004, 2009  Erick Gallesio - I3S-CNRS/ESSI <eg@unice.fr>
 ;;; Copyright 2003, 2004  Manuel Serrano
 ;;; Copyright 2005, 2006, 2007, 2012, 2013, 2015, 2018  Ludovic Courtès <ludo@gnu.org>
+;;; Copyright 2023 Arun Isaac <arunisaac@systemreboot.net>
 ;;;
 ;;;
 ;;; This file is part of Skribilo.
@@ -206,16 +207,7 @@
 (define-method (ast->string (ast <number>))  (number->string ast))
 
 (define-method (ast->string (ast <pair>))
-  (let ((out (open-output-string)))
-    (let Loop ((lst ast))
-      (cond
-	((null? lst)
-	   (get-output-string out))
-	(else
-	   (display (ast->string (car lst)) out)
-	   (unless (null? (cdr lst))
-	     (display #\space out))
-	   (Loop (cdr lst)))))))
+  (string-join (map ast->string ast)))
 
 
 
