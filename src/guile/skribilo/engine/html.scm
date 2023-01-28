@@ -1368,7 +1368,7 @@
 (markup-writer 'section
    :options '(:title :html-title :number :toc :file :env)
    :before html-section-title
-   :after "</div><br>\n")
+   :after "</div>\n")
 
 ;; on-file section writer
 (markup-writer 'section
