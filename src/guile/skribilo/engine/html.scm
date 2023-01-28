@@ -2,7 +2,7 @@
 ;;;
 ;;; Copyright 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2018, 2020  Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright 2003, 2004  Manuel Serrano
-;;; Copyright 2022 Arun Isaac <arunisaac@systemreboot.net>
+;;; Copyright 2022, 2023 Arun Isaac <arunisaac@systemreboot.net>
 ;;;
 ;;;
 ;;; This file is part of Skribilo.
@@ -1308,8 +1308,7 @@
 		 (output (html-container-number n e) e)
 		 (display " ")
 		 (output (markup-option n :title) e)
-		 (display "</h1></center>")))
-   :after "<br>")
+		 (display "</h1></center>"))))
 
 ;; This writer is invoked only for chapters rendered inside separate files!
 (markup-writer 'chapter
