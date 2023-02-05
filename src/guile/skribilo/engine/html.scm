@@ -937,7 +937,6 @@
 	      (let ((footnotes (markup-body n)))
 		 (when (pair? footnotes)
 		    (display "<div class=\"skribilo-footnote\">")
-		    (display "<br><br>\n")
 		    (display "<hr width='20%' size='2' align='left'>\n"))))
    :action (lambda (n e)
 	      (let ((footnotes (markup-body n)))
