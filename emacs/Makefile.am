@@ -1,4 +1,4 @@
-EXTRA_DIST     = skribe.el.in
+EXTRA_DIST     = skribe.el.in skribilo.el
 lisp_DATA      = skribe.el skribilo.el
 
 CLEANFILES     = skribe.el
