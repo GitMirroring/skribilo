@@ -1,4 +1,5 @@
 Copyright (C) 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2016, 2018, 2020 Ludovic Courtès <ludo@gnu.org>
+Copyright (C) 2023 Arun Isaac <arunisaac@systemreboot.net>
 
   Copying and distribution of this file, with or without modification,
   are permitted in any medium without royalty provided the copyright
@@ -6,6 +7,21 @@ Copyright (C) 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2016, 2018, 2020 Ludovic
 
 
 
+* New in Skribilo 0.10.0
+
+** New Emacs skribilo minor mode
+
+The new Emacs skribilo minor mode supersedes the older Emacs skribe
+minor mode.
+
+** New Gemtext reader
+** New Esperanto translation
+
+** HTML engine
+*** Do not add <br> tags before footnotes and after sections and chapters
+*** Use <h2> for section titles
+*** Use UTF-8 as the default charset
+
 * New in Skribilo 0.9.5
 
 ** Skribilo now runs on Guile 3.0 (in addition to 2.x)
