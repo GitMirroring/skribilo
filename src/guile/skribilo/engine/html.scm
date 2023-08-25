@@ -44,6 +44,7 @@
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-13)
   #:use-module (srfi srfi-14)
+  #:use-module (srfi srfi-26)
   #:use-module (srfi srfi-39)
 
   #:export (html-engine html-title-engine html-file
@@ -575,13 +576,41 @@
 	      (format #t " class=\"~a\"" c)))))
 
 ;*---------------------------------------------------------------------*/
+;*    html-open ...                                                    */
+;*---------------------------------------------------------------------*/
+(define* (html-open tag #:optional (attributes '()))
+  "Output opening TAG with ATTRIBUTES, an association list mapping
+attribute names to their values. Attribute names may be symbols or
+strings. Values may be symbols, strings or numbers. Attributes with
+unspecified or #f values are ignored."
+  (display "<")
+  (display tag)
+  (for-each (match-lambda
+              ((name . value)
+               (when (and value
+                          (not (unspecified? value)))
+                 (format #t " ~a=\"~a\"" name value))))
+            attributes)
+  (display ">")
+  (newline))
+
+;*---------------------------------------------------------------------*/
+;*    html-close ...                                                   */
+;*---------------------------------------------------------------------*/
+(define (html-close tag)
+  "Output closing TAG."
+  (display "</")
+  (display tag)
+  (display ">")
+  (newline))
+
+;*---------------------------------------------------------------------*/
 ;*    html-markup-class ...                                            */
 ;*---------------------------------------------------------------------*/
 (define (html-markup-class m)
-   (lambda (n e)
-      (format #t "<~a" m)
-      (html-class n)
-      (display ">")))
+  (lambda (n e)
+    (html-open m
+               `((class . ,(markup-class n))))))
 
 ;*---------------------------------------------------------------------*/
 ;*    html-color-spec? ...                                             */
@@ -629,10 +658,12 @@
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-head
    :before (lambda (n e)
-             (display "<head>\n")
-             (display "<meta http-equiv=\"Content-Type\" content=\"text/html;")
-             (format #t "charset=~A\">\n" (engine-custom (find-engine 'html)
-                                                         'charset))
+             (html-open 'head)
+             (html-open 'meta
+                        `((http-equiv . "Content-Type")
+                          (content . "text/html;")
+                          (charset . ,(engine-custom (find-engine 'html)
+                                                     'charset))))
              (let ((head (engine-custom e 'head)))
                (when head
                  (display head)
@@ -655,10 +686,10 @@
 (markup-writer '&html-body
    :before (lambda (n e)
 	      (let ((bg (engine-custom e 'background)))
-		 (display "<body")
-		 (html-class n)
-		 (when (html-color-spec? bg) (format #t " bgcolor=\"~a\"" bg))
-		 (display ">\n")))
+                (html-open 'body
+                           `((class . ,(markup-class n))
+                             (bgcolor . ,(and (html-color-spec? bg)
+                                              bg))))))
    :after "</body>\n")
 
 ;*---------------------------------------------------------------------*/
@@ -667,26 +698,30 @@
 (markup-writer '&html-page
    :action (lambda (n e)
 	      (define (html-margin m fn size bg fg cla)
-		 (format #t "<td align=\"left\" valign=\"top\" class=\"~a\"" cla)
-		 (if size
-		     (format #t " width=\"~a\"" (html-width size)))
-		 (if (html-color-spec? bg)
-		     (format #t " bgcolor=\"~a\">" bg)
-		     (display ">"))
-		 (format #t "<div class=\"~a\">\n" cla)
-		 (cond
-		    ((and (string? fg) (string? fn))
-		     (format #t "<font color=\"~a\" \"~a\">" fg fn))
-		    ((string? fg)
-		     (format #t "<font color=\"~a\">" fg))
-		    ((string? fn)
-		     (format #t "<font \"~a\">" fn)))
-		 (if (procedure? m)
-		     (evaluate-document (m n e) e)
-		     (output m e))
-		 (if (or (string? fg) (string? fn))
-		     (display "</font>"))
-		 (display "</div></td>\n"))
+                (html-open 'td
+                           `((align . "left")
+                             (valign . "top")
+                             (class . ,cla)
+                             (width . ,(and size (html-width size)))
+                             (bgcolor . ,(and (html-color-spec? bg)
+                                              bg))))
+                (html-open 'div
+                           `((class . ,cla)))
+		(cond
+		 ((and (string? fg) (string? fn))
+		  (format #t "<font color=\"~a\" \"~a\">" fg fn))
+		 ((string? fg)
+                  (html-open 'font
+                             `((color . ,fg))))
+		 ((string? fn)
+		  (format #t "<font \"~a\">" fn)))
+		(if (procedure? m)
+		    (evaluate-document (m n e) e)
+		    (output m e))
+		(if (or (string? fg) (string? fn))
+                    (html-close 'font))
+                (html-close 'div)
+                (html-close 'td))
 	      (let ((body (markup-body n))
 		    (lm (engine-custom e 'left-margin))
 		    (lmfn (engine-custom e 'left-margin-font))
@@ -702,27 +737,45 @@
 		    ((and lm rm)
 		     (let* ((ep (engine-custom e 'margin-padding))
 			    (ac (if (number? ep) ep 0)))
-			(format #t "<table cellpadding=\"~a\" cellspacing=\"0\" width=\"100%\" class=\"skribilo-margins\"><tr>\n" ac))
+                       (html-open 'table
+                                  `((cellpadding . ,ac)
+                                    (cellspacing . "0")
+                                    (width . "100%")
+                                    (class . "skribilo-margins")))
+                       (html-open 'tr))
 		     (html-margin lm lmfn lms lmbg lmfg "skribilo-left-margin")
 		     (html-margin body #f #f #f #f "skribilo-body")
 		     (html-margin rm rmfn rms rmbg rmfg "skribilo-right-margin")
-		     (display "</tr></table>"))
+                     (html-close 'tr)
+                     (html-close 'table))
 		    (lm
 		     (let* ((ep (engine-custom e 'margin-padding))
 			    (ac (if (number? ep) ep 0)))
-			(format #t "<table cellpadding=\"~a\" cellspacing=\"0\" width=\"100%\" class=\"skribilo-margins\"><tr>\n" ac))
+                       (html-open 'table
+                                  `((cellpadding . ,ac)
+                                    (cellspacing . "0")
+                                    (width . "100%")
+                                    (class . "skribilo-margins")))
+                       (html-open 'tr))
 		     (html-margin lm lmfn lms lmbg lmfg "skribilo-left-margin")
 		     (html-margin body #f #f #f #f "skribilo-body")
-		     (display "</tr></table>"))
+                     (html-close 'tr)
+                     (html-close 'table))
 		    (rm
-                     (display "<table cellpadding=\"~a\" cellspacing=\"0\" width=\"100%\" class=\"skribilo-margins\"><tr>\n")
+                     (html-open 'table
+                                `((cellspacing . "0")
+                                  (width . "100%")
+                                  (class . "skribilo-margins")))
+                     (html-open 'tr)
 		     (html-margin body #f #f #f #f "skribilo-body")
 		     (html-margin rm rmfn rms rmbg rmfg "skribilo-right-margin")
-		     (display "</tr></table>"))
+                     (html-close 'tr)
+                     (html-close 'table))
 		    (else
-		     (display "<div class=\"skribilo-body\">\n")
+                     (html-open 'div
+                                '((class . "skribilo-body")))
 		     (output body e)
-		     (display "</div>\n"))))))
+                     (html-close 'div))))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-generic-header ...                                         */
@@ -788,15 +841,20 @@
    :action (lambda (n e)
 	      (let ((i (markup-body n)))
 		 (when i
-		    (format #t " <link rel=\"shortcut icon\" href=~s>\n" i)))))
+                   (html-open 'link
+                              `((rel . "shortcut icon")
+                                (href . ,i)))))))
 
 (markup-writer '&html-header-css
    :action (lambda (n e)
 	      (let ((css (markup-body n)))
-		 (when (pair? css)
-		    (for-each (lambda (css)
-				 (format #t " <link href=~s rel=\"stylesheet\" type=\"text/css\">\n" css))
-			      css)))))
+		(when (pair? css)
+		  (for-each (lambda (css)
+                              (html-open 'link
+                                         `((rel . "stylesheet")
+                                           (type . "text/css")
+                                           (href . ,css))))
+			    css)))))
 
 (markup-writer '&html-header-style
    :before " <style type=\"text/css\">\n  <!--\n"
@@ -834,7 +892,9 @@
 (markup-writer '&html-header-javascript
    :action (lambda (n e)
 	      (when (engine-custom e 'javascript)
-		 (display " <script language=\"JavaScript\" type=\"text/javascript\">\n")
+                 (html-open 'script
+                            '((language . "JavaScript")
+                              (type . "text/javascript")))
 		 (display " <!--\n")
 		 (display "  function skribenospam( n, d, f ) {\n")
 		 (display "    nn=n.replace( / /g , \".\" );\n" )
@@ -845,7 +905,7 @@
 		 (display "    }\n")
 		 (display "  }\n")
 		 (display " -->\n")
-		 (display " </script>\n"))
+                 (html-close 'script))
 	      (let* ((ejs (engine-custom e 'js))
 		     (js (cond
 			    ((string? ejs)
@@ -855,7 +915,10 @@
 			    (else
 			     '()))))
 		 (for-each (lambda (s)
-			      (format #t "<script type=\"text/javascript\" src=\"~a\"></script>" s))
+                             (html-open 'script
+                                        `((type . "text/javascript")
+                                          (src . ,s)))
+                             (html-close 'script))
 			   js))))
 
 
@@ -894,31 +957,45 @@
 	  (tfg (engine-custom e 'title-foreground))
 	  (tfont (engine-custom e 'title-font)))
       (when title
-	 (display "<table width=\"100%\" class=\"skribilo-title\" cellspacing=\"0\" cellpadding=\"0\"><tbody>\n<tr>")
+        (html-open 'table
+                   `((width . "100%")
+                     (class . "skribilo-title")
+                     (cellspacing . "0")
+                     (cellpadding . "0")))
+        (html-open 'tbody)
+        (html-open 'tr)
 	 (if (html-color-spec? tbg)
-	     (format #t "<td align=\"center\"~A>"
-                     (if (html-color-spec? tbg)
-                         (string-append "bgcolor=\"" tbg "\"")
-                         ""))
-	     (display "<td align=\"center\">"))
+             (html-open 'td
+                        `((align . "center")
+                          (bgcolor . ,(and (html-color-spec? tbg)
+                                           tbg))))
+             (html-open 'td
+                        '((align . "center"))))
 	 (if (string? tfg)
-	     (format #t "<font color=\"~a\">" tfg))
+             (html-open 'font
+                        `((color . ,tfg))))
 	 (when title
 	    (if (string? tfont)
 		(begin
-		   (format #t "<font ~a><strong>" tfont)
-		   (output title e)
-		   (display "</strong></font>"))
+		  (format #t "<font ~a>" tfont)
+                  (html-open 'strong)
+		  (output title e)
+                  (html-close 'strong)
+                  (html-close 'font))
 		(begin
-		   (display "<div class=\"skribilo-title\">")
-		   (output title e)
-		   (display "</div>"))))
+                  (html-open 'div
+                             '((class . "skribilo-title")))
+		  (output title e)
+                  (html-close 'div))))
 	 (if (not authors)
 	     (display "\n")
 	     (html-title-authors authors e))
 	 (if (string? tfg)
-	     (display "</font>"))
-	 (display "</td></tr></tbody></table>\n"))))
+             (html-close 'font))
+         (html-close 'td)
+         (html-close 'tr)
+         (html-close 'tbody)
+         (html-close 'table))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-document-title ...                                         */
@@ -936,29 +1013,38 @@
    :before (lambda (n e)
 	      (let ((footnotes (markup-body n)))
 		 (when (pair? footnotes)
-		    (display "<div class=\"skribilo-footnote\">")
-		    (display "<hr width='20%' size='2' align='left'>\n"))))
+                   (html-open 'div
+                              '((class . "skribilo-footnote")))
+                   (html-open 'hr
+                              '((width . "20%")
+                                (size . "2")
+                                (align . "left"))))))
    :action (lambda (n e)
              (let ((footnotes (markup-body n)))
                (for-each (lambda (fn)
-                           (display "\n<div class=\"footnote\">")
-
+                           (html-open 'div
+                                      '((class . "footnote")))
                            ;; Note: the <a> tags must not be nested.
-
-			   (format #t "<a name=\"footnote-~a\"></a>"
-				   (string-canonicalize
-				    (container-ident fn)))
-                           (format #t "<a href=\"#footnote-site-~a\">"
-                                   (string-canonicalize
-                                    (container-ident fn)))
-                           (format #t "<sup><small>~a</small></sup></a>"
-                                   (markup-option fn :label))
+                           (html-open 'a
+                                      `((name . ,(string-append "footnote-"
+                                                                (string-canonicalize
+                                                                 (container-ident fn))))))
+                           (html-close 'a)
+                           (html-open 'a
+                                      `((href . ,(string-append "#footnote-site-"
+                                                                (string-canonicalize
+                                                                 (container-ident fn))))))
+                           (html-open 'sup)
+                           (html-open 'small)
+                           (display (markup-option fn :label))
+                           (html-close 'small)
+                           (html-close 'sup)
+                           (html-close 'a)
 			   (output (markup-body fn) e)
-
-			   (display "\n</div>\n"))
+                           (html-close 'div))
                          footnotes)
                (when (pair? footnotes)
-                 (display "</div>")))))
+                 (html-close 'div)))))
 
 ;*---------------------------------------------------------------------*/
 ;*    html-title-authors ...                                           */
@@ -995,7 +1081,7 @@
 	      e))
    (cond
       ((pair? authors)
-       (display "<center>\n")
+       (html-open 'center)
        (let ((len (length authors)))
 	  (case len
 	     ((1)
@@ -1006,7 +1092,7 @@
 	      (html-authorsN authors 2 #f))
 	     (else
 	      (html-authorsN authors 3 #t))))
-       (display "</center>\n"))
+       (html-close 'center))
       (else
        (html-title-authors (list authors) e))))
 
@@ -1016,9 +1102,9 @@
 (markup-writer 'author
    :options '(:name :title :affiliation :email :url :address :phone :photo :align)
    :before (lambda (n e)
-	      (display "<table")
-	      (html-class n)
-	      (display "><tbody>\n"))
+             (html-open 'table
+                        `((class . ,(markup-class n))))
+             (html-open 'tbody))
    :action (lambda (n e)
 	      (let ((name (markup-option n :name))
 		    (title (markup-option n :title))
@@ -1030,15 +1116,21 @@
 		    (nfn (engine-custom e 'author-font))
 		    (align (markup-option n :align)))
 		 (define (row n)
-		    (format #t "<tr><td align=\"~a\">" align)
-		    (output n e)
-		    (display "</td></tr>"))
+                   (html-open 'tr)
+                   (html-open 'td
+                              `((align . ,align)))
+		   (output n e)
+                   (html-close 'td)
+                   (html-close 'tr))
 		 ;; name
-		 (format #t "<tr><td align=\"~a\">" align)
+                 (html-open 'tr)
+                 (html-open 'td
+                            `((align . ,align)))
 		 (if nfn (format #t "<font ~a>\n" nfn))
 		 (output name e)
-		 (if nfn (display "</font>\n"))
-		 (display "</td></tr>")
+		 (if nfn (html-close 'font))
+                 (html-close 'td)
+                 (html-close 'tr)
 		 ;; title
 		 (if title (row title))
 		 ;; affiliation
@@ -1061,18 +1153,20 @@
    :options '(:name :title :affiliation :email :url :address :phone :photo :align)
    :predicate (lambda (n e) (markup-option n :photo))
    :before (lambda (n e)
-	      (display "<table")
-	      (html-class n)
-	      (display "><tbody>\n<tr>"))
+             (html-open 'table
+                        `((class . ,(markup-class n))))
+             (html-open 'tbody)
+             (html-open 'tr))
    :action (lambda (n e)
 	      (let ((photo (markup-option n :photo)))
-		 (display "<td>")
-		 (output photo e)
-		 (display "</td><td>")
-		 (markup-option-add! n :photo #f)
-		 (output n e)
-		 (markup-option-add! n :photo photo)
-		 (display "</td>")))
+                (html-open 'td)
+                (output photo e)
+                (html-close 'td)
+                (html-open 'td)
+		(markup-option-add! n :photo #f)
+		(output n e)
+		(markup-option-add! n :photo photo)
+                (html-close 'td)))
    :after "</tr>\n</tbody></table>")
 
 ;*---------------------------------------------------------------------*/
@@ -1085,8 +1179,9 @@
 		 (let loop ((i 0))
 		      (if (< i n)
 			  (begin
-			     (display "<td></td>")
-			     (loop (+ i 1))))))
+                            (html-open 'td)
+                            (html-close 'td)
+                            (loop (+ i 1))))))
 	      (define (toc-entry fe level)
                 (match fe
                   ((c ch ...)
@@ -1096,24 +1191,30 @@
 		       (skribe-error 'toc
 				     (format #f "invalid identifier '~a'" id)
 				     c))
-		     (display " <tr>")
+                     (html-open 'tr)
 		     ;; blank columns
 		     (col level)
 		     ;; number
-		     (format #t "<td valign=\"top\" align=\"left\">~a</td>"
-			     (html-container-number c e))
+                     (html-open 'td
+                                '((valign . "top")
+                                  (align . "left")))
+                     (display (html-container-number c e))
+                     (html-close 'td)
 		     ;; title
-		     (format #t "<td colspan=\"~a\" width=\"100%\">"
-			     (- 4 level))
-		     (format #t "<a href=\"~a#~a\">"
-			     (if (and (*destination-file*)
-				      (string=? f (*destination-file*)))
-			         ""
-			         (strip-ref-base (or f (*destination-file*) "")))
-			     (string-canonicalize id))
+                     (html-open 'td
+                                `((colspan . ,(- 4 level))
+                                  (width . "100%")))
+                     (html-open 'a
+                                `((href . ,(string-append
+                                            (if (and (*destination-file*)
+				                     (string=? f (*destination-file*)))
+			                        ""
+			                        (strip-ref-base (or f (*destination-file*) "")))
+                                            (string-canonicalize id)))))
 		     (output (markup-option c :title) e)
-		     (display "</a></td>")
-		     (display "</tr>\n")
+                     (html-close 'a)
+                     (html-close 'td)
+                     (html-close 'tr)
 		     ;; the children
 		     (for-each (lambda (n) (toc-entry n (+ 1 level))) ch)))))
 
@@ -1143,13 +1244,15 @@
 					   (container-body bb))))
 		       ;; avoid to produce an empty table
 		       (unless (null? lst)
-			  (display "<table cellspacing=\"1\" cellpadding=\"1\" width=\"100%\"")
-			  (html-class n)
-			  (display ">\n<tbody>\n")
-
-			  (for-each (lambda (n) (toc-entry n 0)) lst)
-
-			  (display "</tbody>\n</table>\n")))))))
+                         (html-open 'table
+                                    `((class . ,(markup-class n))
+                                      (cellspacing . "1")
+                                      (cellpadding . "1")
+                                      (width . "100%")))
+                         (html-open 'tbody)
+			 (for-each (lambda (n) (toc-entry n 0)) lst)
+                         (html-close 'tbody)
+                         (html-close 'table)))))))
 
 (define (sections-in-same-file? n1 n2 e)
   ;; Return #t when N1 and N2 are to be output in the same file according to
@@ -1297,16 +1400,17 @@
 		 (display "<!-- ")
 		 (output title html-title-engine)
 		 (display " -->\n")
-		 (display "<a name=\"")
-		 (display (string-canonicalize ident))
-		 (display "\"></a>")
-		 (display "<center><h1")
-		 (html-class n)
-		 (display ">")
+                 (html-open 'a
+                            `((name . ,(string-canonicalize ident))))
+                 (html-close 'a)
+                 (html-open 'center)
+                 (html-open 'h1
+                            `((class . ,(markup-class n))))
 		 (output (html-container-number n e) e)
 		 (display " ")
 		 (output (markup-option n :title) e)
-		 (display "</h1></center>"))))
+                 (html-close 'h1)
+                 (html-close 'center))))
 
 ;; This writer is invoked only for chapters rendered inside separate files!
 (markup-writer 'chapter
@@ -1334,30 +1438,38 @@
       (display "<!-- ")
       (output title html-title-engine)
       (display " -->\n")
-      (display "<a name=\"")
-      (display (string-canonicalize ident))
-      (display "\"></a>")
+      (html-open 'a
+                 `((name . ,(string-canonicalize ident))))
+      (html-close 'a)
       (if c
-	  (format #t "<div class=\"~a-title\">" c)
-	  (format #t "<div class=\"skribilo-~a-title\">" (markup-markup n)))
+          (html-open 'div
+                     `((class . ,(string-append c "-title"))))
+          (html-open 'div
+                     `((class . ,(string-append "skribilo-" (markup-markup n) "-title")))))
       (when (html-color-spec? tbg)
-	 (display "<table width=\"100%\">")
-	 (format #t "<tr><td bgcolor=\"~a\">" tbg))
+        (html-open 'table
+                   '((width . "100%")))
+        (html-open 'tr)
+        (html-open 'td
+                   `((bgcolor . ,tbg))))
       (display tstart)
-      (if tfg (format #t "<font color=\"~a\">" tfg))
+      (if tfg
+          (html-open 'font
+                     `((color . ,tfg))))
       (if number
 	  (begin
 	     (output (html-container-number n e) e)
 	     (output nsep e)))
       (output title e)
-      (if tfg (display "</font>\n"))
+      (if tfg
+          (html-close 'font))
       (display tstop)
       (when (and (string? tbg) (> (string-length tbg) 0))
-	 (display "</td></tr></table>\n"))
-      (display "</div>")
-      (display "<div")
-      (html-class n)
-      (display ">"))
+        (html-close 'td)
+        (html-close 'tr)
+        (html-close 'table))
+      (html-close 'div)
+      ((html-markup-class "div") n e))
    (newline))
 
 ;*---------------------------------------------------------------------*/
@@ -1414,8 +1526,10 @@
 (markup-writer 'paragraph
    :before (lambda (n e)
 	      (when (and (>= (*debug*) 2) (location? (ast-loc n)))
-		 (format #t "<span style=\"display: block; position: relative; left: -2cm; font-size: x-small; font-style: italic; color: ff8e1e;\">~a</span>"
-			 (ast-loc n)))
+                (html-open 'span
+                           '((style . "display: block; position: relative; left: -2cm; font-size: x-small; font-style: italic; color: ff8e1e;")))
+                (ast-loc n)
+                (html-close 'span))
 	      ((html-markup-class "p") n e))
    :after "</p>")
 
@@ -1433,21 +1547,28 @@
 (markup-writer 'footnote
    :options '(:label)
    :action (lambda (n e)
-              (format #t "<a name=\"footnote-site-~a\">"
-                      (string-canonicalize (container-ident n)))
-	      (format #t "<a href=\"#footnote-~a\"><sup><small>~a</small></sup></a>"
-		      (string-canonicalize (container-ident n))
-		      (markup-option n :label))
-              (format #t "</a>")))
+             (html-open 'a
+                        `((name . ,(string-append "footnote-site-"
+                                                  (string-canonicalize
+                                                   (container-ident n))))))
+             (html-open 'a
+                        `((href . ,(string-append "#footnote-"
+                                                  (string-canonicalize
+                                                   (container-ident n))))))
+             (html-open 'sup)
+             (html-open 'small)
+             (display (markup-option n :label))
+             (html-close 'small)
+             (html-close 'sup)
+             (html-close 'a)))
 
 ;*---------------------------------------------------------------------*/
 ;*    linebreak ...                                                    */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'linebreak
 	       :before (lambda (n e)
-			  (display "<br")
-			  (html-class n)
-			  (display "/>")))
+                         (html-open 'br
+                                    `((class . ,(html-class n))))))
 
 ;*---------------------------------------------------------------------*/
 ;*    hrule ...                                                        */
@@ -1457,13 +1578,11 @@
    :before (lambda (n e)
 	      (let ((width (markup-option n :width))
 		    (height (markup-option n :height)))
-		 (display "<hr")
-		 (html-class n)
-		 (if (< width 100)
-		     (format #t " width=\"~a\"" (html-width width)))
-		 (if (> height 1)
-		     (format #t " size=\"~a\"" height))
-		 (display ">"))))
+                (html-open 'hr
+                           `((width . ,(and (< width 100)
+                                            (html-width width)))
+                             (size . ,(and (> height 1)
+                                           height)))))))
 
 ;*---------------------------------------------------------------------*/
 ;*    color ...                                                        */
@@ -1476,23 +1595,28 @@
 		    (bg (markup-option n :bg))
 		    (fg (markup-option n :fg)))
 		 (when (html-color-spec? bg)
-		    (display "<table cellspacing=\"0\"")
-		    (html-class n)
-		    (format #t " cellpadding=\"~a\"" (if m m 0))
-		    (if w (format #t " width=\"~a\"" (html-width w)))
-		    (display "><tbody>\n<tr>")
-		    (display "<td bgcolor=\"")
-		    (output bg e)
-		    (display "\">"))
+                   (html-open 'table
+                              `((class . ,(markup-class n))
+                                (cellspacing . "0")
+                                (cellpadding . ,(or m 0))
+                                (width . ,(and w (html-width w)))))
+                   (html-open 'tbody)
+                   (html-open 'tr)
+                   (html-open 'td
+                              `((bgcolor . ,(with-output-to-string
+                                              (cut output bg e))))))
 		 (when (html-color-spec? fg)
-		    (display "<font color=\"")
-		    (output fg e)
-		    (display "\">"))))
+                   (html-open 'font
+                              `((color . ,(with-output-to-string
+                                            (cut output fg e))))))))
    :after (lambda (n e)
 	     (when (html-color-spec? (markup-option n :fg))
-		(display "</font>"))
+               (html-close 'font))
 	     (when (html-color-spec? (markup-option n :bg))
-		(display "</td></tr>\n</tbody></table>"))))
+               (html-close 'td)
+               (html-close 'tr)
+               (html-close 'tbody)
+               (html-close 'table))))
 
 ;*---------------------------------------------------------------------*/
 ;*    frame ...                                                        */
@@ -1503,12 +1627,15 @@
 	      (let ((m (markup-option n :margin))
 		    (b (markup-option n :border))
 		    (w (markup-option n :width)))
-		 (display "<table cellspacing=\"0\"")
-		 (html-class n)
-		 (format #t " cellpadding=\"~a\"" (if m m 0))
-		 (format #t " border=\"~a\"" (if b b 0))
-		 (if w (format #t " width=\"~a\"" (html-width w)))
-		 (display "><tbody>\n<tr><td>")))
+                (html-open 'table
+                           `((class . ,(markup-class n))
+                             (cellspacing . "0")
+                             (cellpadding . ,(or m 0))
+                             (border . ,(or b 0))
+                             (width . ,(and w (html-width w)))))
+                (html-open 'tbody)
+                (html-open 'tr)
+                (html-open 'td)))
    :after "</td></tr>\n</tbody></table>")
 
 ;*---------------------------------------------------------------------*/
@@ -1520,30 +1647,31 @@
 	      (let ((size (markup-option n :size))
 		    (face (markup-option n :face)))
 		 (when (and (number? size) (inexact? size))
-		    (let ((s (if (> size 0) "<big>" "<small>"))
+		    (let ((s (if (> size 0) 'big 'small))
 			  (d (if (> size 0) 1 -1)))
 		       (do ((i (inexact->exact size) (- i d)))
 			   ((= i 0))
-			   (display s))))
+                           (html-open s))))
 		 (when (or (and (number? size) (exact? size)) face)
-		    (display "<font")
-		    (html-class n)
-		    (when (and (number? size) (exact? size) (not (= size 0)))
-		       (format #t " size=\"~a\"" size))
-		    (when face (format #t " face=\"~a\"" face))
-		    (display ">"))))
+                   (html-open 'font
+                              `((class . ,(markup-class n))
+                                (size . ,(and (number? size)
+                                              (exact? size)
+                                              (not (zero? size))
+                                              size))
+                                (face . ,face))))))
    :after (lambda (n e)
 	     (let ((size (markup-option n :size))
 		   (face (markup-option n :face)))
 		(when (or (and (number? size) (exact? size) (not (= size 0)))
 			  face)
-		   (display "</font>"))
+                  (html-close 'font))
 		(when (and (number? size) (inexact? size))
-		   (let ((s (if (> size 0) "</big>" "</small>"))
+		   (let ((s (if (> size 0) 'big 'small))
 			 (d (if (> size 0) 1 -1)))
 		      (do ((i (inexact->exact size) (- i d)))
 			  ((= i 0))
-			  (display s)))))))
+                          (html-close s)))))))
 
 ;*---------------------------------------------------------------------*/
 ;*    flush ...                                                        */
@@ -1553,17 +1681,21 @@
    :before (lambda (n e)
 	      (case (markup-option n :side)
 		 ((center)
-		  (display "<center")
-		  (html-class n)
-		  (display ">\n"))
+                  (html-open 'center
+                             `((class . ,(markup-class n)))))
 		 ((left)
-		  (display "<p style=\"text-align:left;\"")
-		  (html-class n)
-		  (display ">\n"))
+                  (html-open 'p
+                             `((class . ,(markup-class n))
+                               (style . "text-align:left;"))))
 		 ((right)
-		  (display "<table ")
-		  (html-class n)
-		  (display "width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td align=\"right\">"))
+                  (html-open 'table
+                             `((width . "100%")
+                               (cellpadding . "0")
+                               (cellspacing . "0")
+                               (border . "0")))
+                  (html-open 'tr)
+                  (html-open 'td
+                             '((align . "right"))))
 		 (else
 		  (skribe-error 'flush
 				"Invalid side"
@@ -1571,11 +1703,13 @@
    :after (lambda (n e)
 	     (case (markup-option n :side)
 		((center)
-		 (display "</center>\n"))
+                 (html-close 'center))
 		((right)
-		 (display "</td></tr></table>\n"))
+                 (html-close 'td)
+                 (html-close 'tr)
+                 (html-close 'table))
 		((left)
-		 (display "</p>\n")))))
+                 (html-close 'p)))))
 
 ;*---------------------------------------------------------------------*/
 ;*    center ...                                                       */
@@ -1607,14 +1741,14 @@
 	      (for-each (lambda (item)
 			  (let ((ident (and (markup? item)
 					    (markup-ident item))))
-			   (display "<li")
-			   (html-class item)
-			   (display ">")
+                            (html-open 'li
+                                       `((class . ,(markup-class item))))
 			    (if ident  ;; produce an anchor
-				(format #t "\n<a name=\"~a\"></a>"
-					(string-canonicalize ident)))
+                                (html-open 'a
+                                           `((name . ,(string-canonicalize ident))))
+                                (html-close 'a))
 			   (output item e)
-			    (display "</li>\n")))
+                           (html-close 'li)))
 			(markup-body n)))
    :after "</ul>")
 
@@ -1628,13 +1762,14 @@
 	      (for-each (lambda (item)
 			  (let ((ident (and (markup? item)
 					    (markup-ident item))))
-			   (display "<li")
-			   (html-class item)
-			   (display ">")
+                            (html-open 'li
+                                       `((class . ,(markup-class item))))
 			    (if ident  ;; produce an anchor
-				(format #t "\n<a name=\"~a\"></a>" ident))
-			   (output item e)
-			    (display "</li>\n")))
+                                (html-open 'a
+                                           `((name . ,ident)))
+                                (html-close 'a))
+			    (output item e)
+                            (html-close 'li)))
 			(markup-body n)))
    :after "</ol>")
 
@@ -1648,17 +1783,16 @@
 	      (for-each (lambda (item)
 			   (let ((k (markup-option item :key)))
 			      (for-each (lambda (i)
-					   (display " <dt")
-					   (html-class i)
-					   (display ">")
-					   (output i e)
-					   (display "</dt>"))
+                                          (html-open 'dt
+                                                     `((class . ,(and (markup? i)
+                                                                      (markup-class i)))))
+					  (output i e)
+                                          (html-close 'dt))
 					(if (pair? k) k (list k)))
-			      (display "<dd")
-			      (html-class item)
-			      (display ">")
+                              (html-open 'dd
+                                         `((class . ,(markup-class item))))
 			      (output (markup-body item) e)
-			      (display "</dd>\n")))
+                              (html-close 'dd)))
 			(markup-body n)))
    :after "</dl>")
 
@@ -1671,11 +1805,10 @@
 	      (let ((k (markup-option n :key)))
 		 (if k
 		     (begin
-			(display "<b")
-			(html-class n)
-			(display ">")
-			(output k e)
-			(display "</b> "))))
+                       (html-open 'b
+                                  `((class . ,(markup-class n))))
+		       (output k e)
+                       (html-close 'b))))
 	      (output (markup-body n) e)))
 
 ;*---------------------------------------------------------------------*/
@@ -1684,9 +1817,8 @@
 (markup-writer 'blockquote
    :options '()
    :before (lambda (n e)
-	     (display "<blockquote ")
-	     (html-class n)
-	     (display ">\n"))
+             (html-open 'blockquote
+                        `((class . ,(markup-class n)))))
    :after "\n</blockquote>\n")
 
 ;*---------------------------------------------------------------------*/
@@ -1699,19 +1831,19 @@
 	      (let ((ident (markup-ident n))
 		    (number (markup-option n :number))
 		    (legend (markup-option n :legend)))
-		 (display "<a name=\"")
-		 (display (string-canonicalize ident))
-		 (display "\"></a>")
-		 (output (markup-body n) e)
-		 (display "<br>\n")
-		 (output (new markup
-			    (markup '&html-figure-legend)
-			    (parent n)
-			    (ident (string-append ident "-legend"))
-			    (class (markup-class n))
-			    (options `((:number ,number)))
-			    (body legend))
-			 e)))
+                (html-open 'a
+                           `((name . ,(string-canonicalize ident))))
+                (html-close 'a)
+		(output (markup-body n) e)
+                (html-open 'br)
+		(output (new markup
+			     (markup '&html-figure-legend)
+			     (parent n)
+			     (ident (string-append ident "-legend"))
+			     (class (markup-class n))
+			     (options `((:number ,number)))
+			     (body legend))
+			e)))
    :after "<br>")
 
 ;*---------------------------------------------------------------------*/
@@ -1720,11 +1852,19 @@
 (markup-writer '&html-figure-legend
    :options '(:number)
    :before (lambda (n e)
-	      (display "<center>")
+              (html-open 'center)
 	      (let ((number (markup-option n :number)))
-		 (if number
-		     (format #t "<strong>Fig. ~a:</strong> " number)
-		     (display "<strong>Fig. :</strong> "))))
+		(if number
+                    (begin
+                      (html-open 'strong)
+                      (display "Fig. ")
+                      (display (number->string number))
+                      (display ":")
+                      (html-close 'strong))
+                    (begin
+                      (html-open 'strong)
+                      (display "Fig. :")
+                      (html-close 'strong)))))
    :after "</center>")
 
 ;*---------------------------------------------------------------------*/
@@ -1740,27 +1880,37 @@
 		    (cstyle (markup-option n :cellstyle))
 		    (cp (markup-option n :cellpadding))
 		    (cs (markup-option n :cellspacing)))
-		 (display "<table")
-		 (html-class n)
-		 (if width (format #t " width=\"~a\"" (html-width width)))
-		 (if border (format #t " border=\"~a\"" border))
-		 (if (and (number? cp) (>= cp 0))
-		     (format #t " cellpadding=\"~a\"" cp))
-		 (if (and (number? cs) (>= cs 0))
-		     (format #t " cellspacing=\"~a\"" cs))
-		 (cond
-		    ((symbol? cstyle)
-		     (format #t " style=\"border-collapse: ~a;\"" cstyle))
-		    ((string? cstyle)
-		     (format #t " style=\"border-collapse: separate; border-spacing=~a\"" cstyle))
-		    ((number? cstyle)
-		     (format #t " style=\"border-collapse: separate; border-spacing=~apt\"" cstyle)))
-		 (if frame
-		     (format #t " frame=\"~a\""
-			     (if (eq? frame 'none) "void" frame)))
-		 (if (and rules (not (eq? rules 'header)))
-		     (format #t " rules=\"~a\"" rules))
-		 (display "><tbody>\n")))
+                (html-open 'table
+                           `((class . ,(markup-class n))
+                             (width . ,(and width
+                                            (html-width width)))
+                             (border . ,border)
+                             (cellpadding . ,(and (number? cp)
+                                                  (>= cp 0)
+                                                  cp))
+                             (cellspacing . ,(and (number? cs)
+                                                  (>= cs 0)
+                                                  cs))
+                             (style . ,(cond
+                                        ((symbol? cstyle)
+                                         (string-append "border-collapse: "
+                                                        (symbol->string cstyle)
+                                                        ";"))
+                                        ((string? cstyle)
+                                         (string-append "border-collapse: separate; border-spacing="
+                                                        cstyle))
+                                        ((number? cstyle)
+                                         (string-append "border-collapse: separate; border-spacing="
+                                                        cstyle
+                                                        "pt"))
+                                        (else #f)))
+                             (frame . ,(and frame
+                                            (if (eq? frame 'none)
+                                                "void"
+                                                frame)))
+                             (rules . ,(and (not (eq? rules 'header))
+                                            rules))))
+                (html-open 'tbody)))
    :after "</tbody></table>\n")
 
 ;*---------------------------------------------------------------------*/
@@ -1770,10 +1920,10 @@
    :options '(:bg)
    :before (lambda (n e)
 	      (let ((bg (markup-option n :bg)))
-		 (display "<tr")
-		 (html-class n)
-		 (when (html-color-spec? bg) (format #t " bgcolor=\"~a\"" bg))
-		 (display ">")))
+                (html-open 'tr
+                           `((class . ,(markup-class n))
+                             (bgcolor . ,(and (html-color-spec? bg)
+                                              bg))))))
    :after "</tr>\n")
 
 ;*---------------------------------------------------------------------*/
@@ -1790,24 +1940,23 @@
 				  ((or (eq? v 'center)
 				       (equal? v "center"))
 				   "middle")
-				  (else
-				   v))))
+                                  (else
+                                   v))))
 		    (colspan (markup-option n :colspan))
 		    (rowspan (markup-option n :rowspan))
 		    (bg (markup-option n :bg)))
-		 (format #t "<~a" markup)
-		 (html-class n)
-		 (if width (format #t " width=\"~a\"" (html-width width)))
-		 (if align (format #t " align=\"~a\"" align))
-		 (if valign (format #t " valign=\"~a\"" valign))
-		 (if colspan (format #t " colspan=\"~a\"" colspan))
-		 (if rowspan (format #t " rowspan=\"~a\"" rowspan))
-		 (when (html-color-spec? bg)
-		    (format #t " bgcolor=\"~a\"" bg))
-		 (display ">")))
+                (html-open markup
+                           `((class . ,(markup-class n))
+                             (width . ,(and width (html-width width)))
+                             (align . ,align)
+                             (valign . ,valign)
+                             (colspan . ,colspan)
+                             (rowspan . ,rowspan)
+                             (bgcolor . ,(and (html-color-spec? bg)
+                                              bg))))))
    :after (lambda (n e)
 	     (let ((markup (or (markup-option n 'markup) 'td)))
-		(format #t "</~a>" markup))))
+               (html-close markup))))
 
 ;*---------------------------------------------------------------------*/
 ;*    image ... @label image@                                          */
@@ -1827,18 +1976,17 @@
 						     '("gif" "jpg" "png"))))))
 		 (if (not (string? img))
 		     (skribe-error 'html "Invalid image" file)
-		     (begin
-			(format #t "<img src=\"~a\" border=\"0\"" img)
-			(html-class n)
-			(if body
-			    (begin
-			       (display " alt=\"")
-			       (output body e)
-			       (display "\""))
-			    (format #t " alt=\"~a\"" file))
-			(if width (format #t " width=\"~a\"" (html-width width)))
-			(if height (format #t " height=\"~a\"" height))
-			(display ">"))))))
+                     (html-open 'img
+                                `((class . ,(markup-class n))
+                                  (src . ,img)
+                                  (border . "0")
+                                  (alt . ,(if body
+                                              (with-output-to-string
+                                                (cut output body e))
+                                              file))
+                                  (width . ,(and width
+                                                 (html-width width)))
+                                  (height . ,height)))))))
 
 ;*---------------------------------------------------------------------*/
 ;*    Ornaments ...                                                    */
@@ -1873,15 +2021,15 @@
    :options '(:text)
    :action (lambda (n e)
 	      (let ((text (markup-option n :text)))
-		 (display "<a href=\"mailto:")
-		 (output (markup-body n) e)
-		 (display #\")
-		 (html-class n)
-		 (display #\>)
-		 (if text
-		     (output text e)
-		     (evaluate-document (tt (markup-body n)) e))
-		 (display "</a>"))))
+                (html-open 'a
+                           `((class . ,(markup-class n))
+                             (href . ,(string-append "mailto:"
+                                                     (with-output-to-string
+                                                       (cut output (markup-body n) e))))))
+		(if text
+		    (output text e)
+		    (evaluate-document (tt (markup-body n)) e))
+                (html-close 'a))))
 
 ;*---------------------------------------------------------------------*/
 ;*    mailto ... @label mailto@                                        */
@@ -1909,24 +2057,29 @@
 		     (dd (regexp-substitute/global #f "\\." do
                                                    'pre " " 'post))
 		     (text (markup-option n :text)))
-		(display "<script language=\"JavaScript\" type=\"text/javascript\"")
+                (html-open 'script
+                           `((language . "JavaScript")
+                             (type . "text/javascript")))
 		(if (not text)
-		    (format #t ">skribenospam( ~s, ~s, true )" nn dd)
+                    (format #t "skribenospam( ~s, ~s, true )" nn dd)
 		    (begin
-		      (format #t ">skribenospam( ~s, ~s, false )" nn dd)
-		      (display "</script>")
+		      (format #t "skribenospam( ~s, ~s, false )" nn dd)
+                      (html-close 'script)
 		      (output text e)
-		      (display "<script language=\"JavaScript\" type=\"text/javascript\">document.write(\"</\" + \"a>\")")))
-		(display "</script>\n"))))
+                      (html-open 'script
+                                 `((language . "JavaScript")
+                                   (type . "text/javascript")))
+                      (display "document.write(\"</\" + \"a>\")")))
+                (html-close 'script))))
 
 ;*---------------------------------------------------------------------*/
 ;*    mark ... @label mark@                                            */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'mark
    :before (lambda (n e)
-	      (format #t "<a name=\"~a\"" (string-canonicalize (markup-ident n)))
-	      (html-class n)
-	      (display ">"))
+             (html-open 'a
+                        `((class . ,(markup-class n))
+                          (name . ,(string-canonicalize (markup-ident n))))))
    :after "</a>")
 
 ;*---------------------------------------------------------------------*/
@@ -1941,14 +2094,14 @@
 		     (class (if (markup-class n)
 				(markup-class n)
 				"skribilo-ref")))
-		 (format #t "<a href=\"~a#~a\" class=\"~a\""
-			 (if (and (*destination-file*) f
-				  (string=? f (*destination-file*)))
-			     ""
-			     (strip-ref-base (or f (*destination-file*) "")))
-			 (string-canonicalize id)
-			 class)
-		 (display ">")))
+                (html-open 'a
+                           `((href . ,(string-append (if (and (*destination-file*) f
+				                              (string=? f (*destination-file*)))
+			                                 ""
+			                                 (strip-ref-base (or f (*destination-file*) "")))
+                                                     "#"
+                                                     (string-canonicalize id)))
+                             (class . ,class)))))
    :action (lambda (n e)
 	      (let ((t (markup-option n :text))
 		    (m (markup-option n 'mark))
@@ -2052,11 +2205,10 @@
 					  (substring url 0 i))
 					 (else
 					  (loop (+ i 1))))))))))
-		 (display "<a href=\"")
-		 (output url html-title-engine)
-		 (display "\"")
-		 (when class (format #t " class=\"~a\"" class))
-		 (display ">")))
+                (html-open 'a
+                           `((href . ,(with-output-to-string
+                                        (cut output url html-title-engine)))
+                             (class . ,class)))))
    :action (lambda (n e)
 	      (let ((v (markup-option n :text)))
 		 (output (or v (markup-option n :url)) e)))
@@ -2070,10 +2222,9 @@
    :before (lambda (n e)
              (let ((before (writer-before
                             (markup-writer-get '&prog-line base-engine))))
-               (format #t "<a name=\"~a\""
-                       (string-canonicalize (markup-ident n)))
-               (html-class n)
-               (display ">")
+               (html-open 'a
+                          `((class . ,(markup-class n))
+                            (name . ,(string-canonicalize (markup-ident n)))))
                (before n e)))
    :after "</a>\n")
 
@@ -2109,9 +2260,9 @@
 (markup-writer '&bib-entry-label
    :options '(:title)
    :before (lambda (n e)
-	      (format #t "<a name=\"~a\"" (string-canonicalize (markup-ident n)))
-	      (html-class n)
-	      (display ">"))
+             (html-open 'a
+                        `((class . ,(markup-class n))
+                          (name . ,(string-canonicalize (markup-ident n))))))
    :action (lambda (n e)
 	      (output n e (markup-writer-get '&bib-entry-label base-engine)))
    :after "</a>")
@@ -2143,18 +2294,17 @@
 ;*---------------------------------------------------------------------*/
 (markup-writer '&the-index-header
    :action (lambda (n e)
-	      (display "<center")
-	      (html-class n)
-	      (display ">")
-	      (for-each (lambda (h)
-			   (let ((f (engine-custom e 'index-header-font-size)))
-			      (if f
-				  (evaluate-document (font :size f (bold (it h))) e)
-				  (output h e))
-			      (display " ")))
-			(markup-body n))
-	      (display "</center>")
-	      (evaluate-document (linebreak 2) e)))
+             (html-open 'center
+                        `((class . ,(markup-class n))))
+	     (for-each (lambda (h)
+			 (let ((f (engine-custom e 'index-header-font-size)))
+			   (if f
+			       (evaluate-document (font :size f (bold (it h))) e)
+			       (output h e))
+			   (display " ")))
+		       (markup-body n))
+             (html-close 'center)
+	     (evaluate-document (linebreak 2) e)))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-comment ...                                              */
