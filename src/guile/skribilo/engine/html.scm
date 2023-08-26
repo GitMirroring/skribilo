@@ -874,6 +874,7 @@ unspecified or #f values are ignored."
 		 (display "  span.sc { font-variant: small-caps }\n")
 		 (display "  span.sf { font-family: sans-serif }\n")
 		 (display "  span.skribetitle { font-family: sans-serif; font-weight: bolder; font-size: x-large; }\n")
+                 (display "  li.skribilo-toc-item::marker { content: attr(skribilo-toc-item-marker) }\n")
 		 (when (pair? icss)
 		    (for-each (lambda (css)
 				 (let ((p (open-input-file css)))
@@ -1178,89 +1179,69 @@ unspecified or #f values are ignored."
 (markup-writer 'toc
    :options 'all
    :action (lambda (node engine)
-	      (define (col n)
-		 (let loop ((i 0))
-		      (if (< i n)
-			  (begin
-                            (html-open 'td)
-                            (html-close 'td)
-                            (loop (+ i 1))))))
-	      (define (toc-entry fe level)
-                (match fe
-                  ((c ch ...)
-		   (let ((id (markup-ident c))
-		         (f (html-file c engine)))
-		     (unless (string? id)
-		       (skribe-error 'toc
-				     (format #f "invalid identifier '~a'" id)
-				     c))
-                     (html-open 'tr)
-		     ;; blank columns
-		     (col level)
-		     ;; number
-                     (html-open 'td
-                                '((valign . "top")
-                                  (align . "left")))
-                     (display (html-container-number c engine))
-                     (html-close 'td)
-		     ;; title
-                     (html-open 'td
-                                `((colspan . ,(- 4 level))
-                                  (width . "100%")))
-                     (html-open 'a
-                                `((href . ,(string-append
-                                            (if (and (*destination-file*)
-				                     (string=? f (*destination-file*)))
-			                        ""
-			                        (strip-ref-base (or f (*destination-file*) "")))
-                                            (string-canonicalize id)))))
-		     (output (markup-option c :title) engine)
-                     (html-close 'a)
-                     (html-close 'td)
-                     (html-close 'tr)
-		     ;; the children
-		     (for-each (lambda (node)
-                                 (toc-entry node (+ 1 level)))
-                               ch)))))
+	     (define (toc-entries entries)
+               ;; Do not produce an empty table.
+               (unless (null? entries)
+                 (html-open 'ol)
+                 (for-each (match-lambda
+                             ((parent children ...)
+                              (let ((id (markup-ident parent))
+		                    (file (html-file parent engine)))
+		                (unless (string? id)
+		                  (skribe-error 'toc
+				                (format #f "invalid identifier '~a'" id)
+				                parent))
+		                ;; title
+                                (html-open 'li
+                                           `((class . "skribilo-toc-item")
+                                             (skribilo-toc-item-marker
+                                              . ,(string-append (html-container-number parent engine)
+                                                                " "))))
+                                (html-open 'a
+                                           `((href . ,(string-append
+                                                       (if (and (*destination-file*)
+				                                (string=? file (*destination-file*)))
+			                                   ""
+			                                   (strip-ref-base (or file (*destination-file*) "")))
+                                                       (string-canonicalize id)))))
+		                (output (markup-option parent :title)
+                                        engine)
+                                (html-close 'a)
+		                ;; the children
+                                (toc-entries children)
+                                (html-close 'li))))
+                           entries)
+                 (html-close 'ol)))
 
-	      (let* ((c (markup-option node :chapter))
-		     (s (markup-option node :section))
-		     (ss (markup-option node :subsection))
-		     (sss (markup-option node :subsubsection))
-		     (b (markup-body node))
-		     (bb (if (handle? b)
-			     (handle-ast b)
-			     b)))
-		 (if (not (container? bb))
+	      (let ((chapter (markup-option node :chapter))
+		    (section (markup-option node :section))
+		    (subsection (markup-option node :subsection))
+		    (subsubsection (markup-option node :subsubsection))
+		    (body (if (handle? (markup-body node))
+                              (handle-ast (markup-body node))
+                              (markup-body node))))
+		 (if (not (container? body))
 		     (error 'toc
 			    "Invalid body (container expected)"
-			    (if (markup? bb)
-				(markup-markup bb)
+			    (if (markup? body)
+				(markup-markup body)
 				"???"))
-		     (let ((lst (find-down (lambda (x)
-					     (and (markup? x)
-						  (markup-option x :toc)
-						  (or (and sss (is-markup? x 'subsubsection))
-						      (and ss (is-markup? x 'subsection))
-						      (and s (is-markup? x 'section))
-						      (and c (is-markup? x 'chapter))
-						      (markup-option node
-                                                                     (symbol->keyword
-								      (markup-markup x))))))
-					   (container-body bb))))
-		       ;; avoid to produce an empty table
-		       (unless (null? lst)
-                         (html-open 'table
-                                    `((class . ,(markup-class node))
-                                      (cellspacing . "1")
-                                      (cellpadding . "1")
-                                      (width . "100%")))
-                         (html-open 'tbody)
-			 (for-each (lambda (node)
-                                     (toc-entry node 0))
-                                   lst)
-                         (html-close 'tbody)
-                         (html-close 'table)))))))
+                     (toc-entries
+                      (find-down (lambda (x)
+				   (and (markup? x)
+					(markup-option x :toc)
+					(or (and subsubsection
+                                                 (is-markup? x 'subsubsection))
+					    (and subsection
+                                                 (is-markup? x 'subsection))
+					    (and section
+                                                 (is-markup? x 'section))
+					    (and chapter
+                                                 (is-markup? x 'chapter))
+					    (markup-option node
+                                                           (symbol->keyword
+							    (markup-markup x))))))
+				 (container-body body)))))))
 
 (define (sections-in-same-file? node1 node2 engine)
   ;; Return #t when NODE1 and NODE2 are to be output in the same file
