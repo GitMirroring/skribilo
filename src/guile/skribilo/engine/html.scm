@@ -865,28 +865,26 @@ unspecified or #f values are ignored."
 (markup-writer '&html-header-style
    :before " <style type=\"text/css\">\n  <!--\n"
    :action (lambda (node engine)
-	      (let ((icss (let ((ic (engine-custom engine 'inline-css)))
-			     (if (string? ic)
-				 (list ic)
-				 ic))))
-		 (display "  pre { font-family: monospace }\n")
-		 (display "  tt { font-family: monospace }\n")
-		 (display "  code { font-family: monospace }\n")
-		 (display "  p.flushright { text-align: right }\n")
-		 (display "  p.flushleft { text-align: left }\n")
-		 (display "  span.sc { font-variant: small-caps }\n")
-		 (display "  span.sf { font-family: sans-serif }\n")
-		 (display "  span.skribetitle { font-family: sans-serif; font-weight: bolder; font-size: x-large; }\n")
-                 (display "  li.skribilo-toc-item::marker { content: attr(skribilo-toc-item-marker) }\n")
-		 (when (pair? icss)
-		    (for-each (lambda (css)
-                                (display (guard (c (else (skribe-error
-				                          'html-css
-				                          "Can't open CSS file for input"
-				                          css)))
-                                           (call-with-input-file css
-                                             get-string-all))))
-			      icss))))
+	      (display "  pre { font-family: monospace }\n")
+	      (display "  tt { font-family: monospace }\n")
+	      (display "  code { font-family: monospace }\n")
+	      (display "  p.flushright { text-align: right }\n")
+	      (display "  p.flushleft { text-align: left }\n")
+	      (display "  span.sc { font-variant: small-caps }\n")
+	      (display "  span.sf { font-family: sans-serif }\n")
+	      (display "  span.skribetitle { font-family: sans-serif; font-weight: bolder; font-size: x-large; }\n")
+              (display "  li.skribilo-toc-item::marker { content: attr(skribilo-toc-item-marker) }\n")
+	      (for-each (lambda (css)
+                          (display (guard (c (else (skribe-error
+				                    'html-css
+				                    "Can't open CSS file for input"
+				                    css)))
+                                     (call-with-input-file css
+                                       get-string-all))))
+                        (let ((inline-css (engine-custom engine 'inline-css)))
+			  (if (string? inline-css)
+			      (list inline-css)
+			      inline-css))))
    :after "  -->\n </style>\n")
 
 (markup-writer '&html-header-javascript
