@@ -47,6 +47,7 @@
   #:use-module (srfi srfi-26)
   #:use-module (srfi srfi-39)
 
+  #:use-module (rnrs exceptions)
   #:use-module (rnrs io ports)
 
   #:export (html-engine html-title-engine html-file
@@ -879,15 +880,12 @@ unspecified or #f values are ignored."
                  (display "  li.skribilo-toc-item::marker { content: attr(skribilo-toc-item-marker) }\n")
 		 (when (pair? icss)
 		    (for-each (lambda (css)
-				 (let ((p (open-input-file css)))
-				    (if (not (input-port? p))
-					(skribe-error
-					 'html-css
-					 "Can't open CSS file for input"
-					 css)
-					(begin
-                                          (display (get-string-all p))
-					  (close-input-port p)))))
+                                (display (guard (c (else (skribe-error
+				                          'html-css
+				                          "Can't open CSS file for input"
+				                          css)))
+                                           (call-with-input-file css
+                                             get-string-all))))
 			      icss))))
    :after "  -->\n </style>\n")
 
