@@ -86,7 +86,7 @@
 			 (set! table (cons (cons base 1) table))
 			 1))))
 	   (format #f "~a-~a.~a" base n suf)))
-      (lambda (node e)
+      (lambda (node engine)
 	(let ((f (markup-option node filename))
 	      (file (markup-option node :file)))
 	   (cond
@@ -96,13 +96,13 @@
 	       file)
 	      ((or file
 		   (and (is-markup? node 'chapter)
-			(engine-custom e 'chapter-file))
+			(engine-custom engine 'chapter-file))
 		   (and (is-markup? node 'section)
-			(engine-custom e 'section-file))
+			(engine-custom engine 'section-file))
 		   (and (is-markup? node 'subsection)
-			(engine-custom e 'subsection-file))
+			(engine-custom engine 'subsection-file))
 		   (and (is-markup? node 'subsubsection)
-			(engine-custom e 'subsubsection-file)))
+			(engine-custom engine 'subsubsection-file)))
 	       (let* ((b (or (and (string? (*destination-file*))
 				  (file-prefix (*destination-file*)))
 			     ""))
@@ -117,7 +117,7 @@
 	      (else
 	       (let ((p (ast-parent node)))
 		  (if (container? p)
-		      (let ((file (html-file p e)))
+		      (let ((file (html-file p engine)))
 			 (if (string? file)
 			     (begin
 				(markup-option-add! node filename file)
@@ -459,9 +459,10 @@
 ;*---------------------------------------------------------------------*/
 ;*    html-file ...                                                    */
 ;*---------------------------------------------------------------------*/
-(define (html-file n e)
-  (let ((proc (or (engine-custom e 'file-name-proc) html-file-default)))
-    (proc n e)))
+(define (html-file node engine)
+  (let ((proc (or (engine-custom engine 'file-name-proc)
+                  html-file-default)))
+    (proc node engine)))
 
 ;*---------------------------------------------------------------------*/
 ;*    html-title-engine ...                                            */
@@ -476,12 +477,12 @@
 ;*---------------------------------------------------------------------*/
 ;*    html-browser-title ...                                           */
 ;*---------------------------------------------------------------------*/
-(define (html-browser-title n)
-   (and (markup? n)
-	(or (markup-option n :html-title)
-	    (if (document? n)
-		(markup-option n :title)
-		(html-browser-title (ast-parent n))))))
+(define (html-browser-title node)
+   (and (markup? node)
+	(or (markup-option node :html-title)
+	    (if (document? node)
+		(markup-option node :title)
+		(html-browser-title (ast-parent node))))))
 
 
 ;*---------------------------------------------------------------------*/
@@ -489,7 +490,7 @@
 ;*    -------------------------------------------------------------    */
 ;*    Returns a string representing the container number               */
 ;*---------------------------------------------------------------------*/
-(define (html-container-number c e)
+(define (html-container-number c engine)
    (define (html-number n proc)
       (cond
 	 ((string? n)
@@ -502,11 +503,11 @@
 	  "")))
    (define (html-chapter-number c)
       (html-number (markup-option c :number)
-		   (engine-custom e 'chapter-number->string)))
+		   (engine-custom engine 'chapter-number->string)))
    (define (html-section-number c)
       (let ((p (ast-parent c))
 	    (s (html-number (markup-option c :number)
-			    (engine-custom e 'section-number->string))))
+			    (engine-custom engine 'section-number->string))))
 	 (cond
 	    ((is-markup? p 'chapter)
 	     (string-append (html-chapter-number p) "." s))
@@ -515,7 +516,7 @@
    (define (html-subsection-number c)
       (let ((p (ast-parent c))
 	    (s (html-number (markup-option c :number)
-			    (engine-custom e 'subsection-number->string))))
+			    (engine-custom engine 'subsection-number->string))))
 	 (cond
 	    ((is-markup? p 'section)
 	     (string-append (html-section-number p) "." s))
@@ -524,7 +525,7 @@
    (define (html-subsubsection-number c)
       (let ((p (ast-parent c))
 	    (s (html-number (markup-option c :number)
-			    (engine-custom e 'subsubsection-number->string))))
+			    (engine-custom engine 'subsubsection-number->string))))
 	 (cond
 	    ((is-markup? p 'subsection)
 	     (string-append (html-subsection-number p) "." s))
@@ -608,9 +609,9 @@ unspecified or #f values are ignored."
 ;*    html-markup-class ...                                            */
 ;*---------------------------------------------------------------------*/
 (define (html-markup-class m)
-  (lambda (n e)
+  (lambda (node engine)
     (html-open m
-               `((class . ,(markup-class n))))))
+               `((class . ,(markup-class node))))))
 
 ;*---------------------------------------------------------------------*/
 ;*    html-color-spec? ...                                             */
@@ -626,23 +627,23 @@ unspecified or #f values are ignored."
 (markup-writer 'document
    :options '(:title :author :ending :html-title :env :keywords)
 
-   :action (lambda (n e)
-	      (let* ((id (markup-ident n))
+   :action (lambda (node engine)
+	      (let* ((id (markup-ident node))
 		     (title (new markup
 			       (markup '&html-document-title)
-			       (parent n)
+			       (parent node)
 			       (ident (string-append id "-title"))
-			       (class (markup-class n))
-			       (options `((author ,(markup-option n :author))))
-			       (body (markup-option n :title)))))
+			       (class (markup-class node))
+			       (options `((author ,(markup-option node :author))))
+			       (body (markup-option node :title)))))
 
                  ;; Record the file name, for use by `html-file-default'.
-                 (markup-option-add! n :file (*destination-file*))
-		 (&html-generic-document n title e)))
+                 (markup-option-add! node :file (*destination-file*))
+		 (&html-generic-document node title engine)))
 
-   :after (lambda (n e)
-	     (if (engine-custom e 'emit-sui)
-		 (document-sui n e))))
+   :after (lambda (node engine)
+	     (if (engine-custom engine 'emit-sui)
+		 (document-sui node engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-html ...                                                   */
@@ -657,14 +658,14 @@ unspecified or #f values are ignored."
 ;*    &html-head ...                                                   */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-head
-   :before (lambda (n e)
+   :before (lambda (node engine)
              (html-open 'head)
              (html-open 'meta
                         `((http-equiv . "Content-Type")
                           (content . "text/html;")
                           (charset . ,(engine-custom (find-engine 'html)
                                                      'charset))))
-             (let ((head (engine-custom e 'head)))
+             (let ((head (engine-custom engine 'head)))
                (when head
                  (display head)
                  (newline))))
@@ -675,19 +676,19 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-meta
    :before "<meta name=\"keywords\" content=\""
-   :action (lambda (n e)
-             (let ((kw* (map ast->string (or (markup-body n) '()))))
-               (output (keyword-list->comma-separated kw*) e)))
+   :action (lambda (node engine)
+             (let ((kw* (map ast->string (or (markup-body node) '()))))
+               (output (keyword-list->comma-separated kw*) engine)))
    :after  "\">\n")
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-body ...                                                   */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-body
-   :before (lambda (n e)
-	      (let ((bg (engine-custom e 'background)))
+   :before (lambda (node engine)
+	      (let ((bg (engine-custom engine 'background)))
                 (html-open 'body
-                           `((class . ,(markup-class n))
+                           `((class . ,(markup-class node))
                              (bgcolor . ,(and (html-color-spec? bg)
                                               bg))))))
    :after "</body>\n")
@@ -696,7 +697,7 @@ unspecified or #f values are ignored."
 ;*    &html-page ...                                                   */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-page
-   :action (lambda (n e)
+   :action (lambda (node engine)
 	      (define (html-margin m fn size bg fg cla)
                 (html-open 'td
                            `((align . "left")
@@ -716,26 +717,27 @@ unspecified or #f values are ignored."
 		 ((string? fn)
 		  (format #t "<font \"~a\">" fn)))
 		(if (procedure? m)
-		    (evaluate-document (m n e) e)
-		    (output m e))
+		    (evaluate-document (m node engine)
+                                       engine)
+		    (output m engine))
 		(if (or (string? fg) (string? fn))
                     (html-close 'font))
                 (html-close 'div)
                 (html-close 'td))
-	      (let ((body (markup-body n))
-		    (lm (engine-custom e 'left-margin))
-		    (lmfn (engine-custom e 'left-margin-font))
-		    (lms (engine-custom e 'left-margin-size))
-		    (lmbg (engine-custom e 'left-margin-background))
-		    (lmfg (engine-custom e 'left-margin-foreground))
-		    (rm (engine-custom e 'right-margin))
-		    (rmfn (engine-custom e 'right-margin-font))
-		    (rms (engine-custom e 'right-margin-size))
-		    (rmbg (engine-custom e 'right-margin-background))
-		    (rmfg (engine-custom e 'right-margin-foreground)))
+	      (let ((body (markup-body node))
+		    (lm (engine-custom engine 'left-margin))
+		    (lmfn (engine-custom engine 'left-margin-font))
+		    (lms (engine-custom engine 'left-margin-size))
+		    (lmbg (engine-custom engine 'left-margin-background))
+		    (lmfg (engine-custom engine 'left-margin-foreground))
+		    (rm (engine-custom engine 'right-margin))
+		    (rmfn (engine-custom engine 'right-margin-font))
+		    (rms (engine-custom engine 'right-margin-size))
+		    (rmbg (engine-custom engine 'right-margin-background))
+		    (rmfg (engine-custom engine 'right-margin-foreground)))
 		 (cond
 		    ((and lm rm)
-		     (let* ((ep (engine-custom e 'margin-padding))
+		     (let* ((ep (engine-custom engine 'margin-padding))
 			    (ac (if (number? ep) ep 0)))
                        (html-open 'table
                                   `((cellpadding . ,ac)
@@ -749,7 +751,7 @@ unspecified or #f values are ignored."
                      (html-close 'tr)
                      (html-close 'table))
 		    (lm
-		     (let* ((ep (engine-custom e 'margin-padding))
+		     (let* ((ep (engine-custom engine 'margin-padding))
 			    (ac (if (number? ep) ep 0)))
                        (html-open 'table
                                   `((cellpadding . ,ac)
@@ -774,80 +776,81 @@ unspecified or #f values are ignored."
 		    (else
                      (html-open 'div
                                 '((class . "skribilo-body")))
-		     (output body e)
+		     (output body engine)
                      (html-close 'div))))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-generic-header ...                                         */
 ;*---------------------------------------------------------------------*/
-(define (&html-generic-header n e)
-   (let* ((ic (engine-custom e 'favicon))
-	  (id (markup-ident n)))
+(define (&html-generic-header node engine)
+   (let* ((ic (engine-custom engine 'favicon))
+	  (id (markup-ident node)))
       (unless (string? id)
 	 (skribe-error '&html-generic-header
 		       (format #f "Invalid identifier '~a'" id)
-		       n))
+		       node))
       ;; title
       (output (new markup
 		 (markup '&html-header-title)
-		 (parent n)
+		 (parent node)
 		 (ident (string-append id "-title"))
-		 (class (markup-class n))
-		 (body (markup-body n)))
-	      e)
+		 (class (markup-class node))
+		 (body (markup-body node)))
+	      engine)
       ;; favicon
       (output (new markup
 		 (markup '&html-header-favicon)
-		 (parent n)
+		 (parent node)
 		 (ident (string-append id "-favicon"))
 		 (body (cond
 			  ((string? ic)
 			   ic)
 			  ((procedure? ic)
-			   (ic id e))
+			   (ic id engine))
 			  (else #f))))
-	      e)
+	      engine)
       ;; style
       (output (new markup
 		 (markup '&html-header-style)
-		 (parent n)
+		 (parent node)
 		 (ident (string-append id "-style"))
-		 (class (markup-class n)))
-	      e)
+		 (class (markup-class node)))
+	      engine)
       ;; css
       (output (new markup
 		 (markup '&html-header-css)
-		 (parent n)
+		 (parent node)
 		 (ident (string-append id "-css"))
-		 (body (let ((c (engine-custom e 'css)))
+		 (body (let ((c (engine-custom engine 'css)))
 			  (if (string? c)
 			      (list c)
 			      c))))
-	      e)
+	      engine)
       ;; javascript
       (output (new markup
 		 (markup '&html-header-javascript)
-		 (parent n)
+		 (parent node)
 		 (ident (string-append id "-javascript")))
-	      e)))
+	      engine)))
 
 (markup-writer '&html-header-title
    :before "<title>"
-   :action (lambda (n e)
-	      (output (markup-body n) html-title-engine))
+   :action (lambda (node engine)
+	      (output (markup-body node)
+                      html-title-engine))
    :after "</title>\n")
 
 (markup-writer '&html-header-favicon
-   :action (lambda (n e)
-	      (let ((i (markup-body n)))
+   :action (lambda (node engine)
+	      (let ((i (markup-body node)))
 		 (when i
                    (html-open 'link
                               `((rel . "shortcut icon")
                                 (href . ,i)))))))
 
 (markup-writer '&html-header-css
-   :action (lambda (n e)
-	      (let ((css (markup-body n)))
+   :action (lambda (node engine)
+	      (let ((css (markup-body node)))
 		(when (pair? css)
 		  (for-each (lambda (css)
                               (html-open 'link
@@ -858,8 +861,8 @@ unspecified or #f values are ignored."
 
 (markup-writer '&html-header-style
    :before " <style type=\"text/css\">\n  <!--\n"
-   :action (lambda (n e)
-	      (let ((icss (let ((ic (engine-custom e 'inline-css)))
+   :action (lambda (node engine)
+	      (let ((icss (let ((ic (engine-custom engine 'inline-css)))
 			     (if (string? ic)
 				 (list ic)
 				 ic))))
@@ -890,8 +893,8 @@ unspecified or #f values are ignored."
    :after "  -->\n </style>\n")
 
 (markup-writer '&html-header-javascript
-   :action (lambda (n e)
-	      (when (engine-custom e 'javascript)
+   :action (lambda (node engine)
+	      (when (engine-custom engine 'javascript)
                  (html-open 'script
                             '((language . "JavaScript")
                               (type . "text/javascript")))
@@ -906,7 +909,7 @@ unspecified or #f values are ignored."
 		 (display "  }\n")
 		 (display " -->\n")
                  (html-close 'script))
-	      (let* ((ejs (engine-custom e 'js))
+	      (let* ((ejs (engine-custom engine 'js))
 		     (js (cond
 			    ((string? ejs)
 			     (list ejs))
@@ -936,26 +939,26 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-ending
    :before "<div class=\"skribilo-ending\">"
-   :action (lambda (n e)
-	      (let ((body (markup-body n)))
+   :action (lambda (node engine)
+	      (let ((body (markup-body node)))
 		 (if body
-		     (output body e)
+		     (output body engine)
 		     (evaluate-document (list "(made with "
                                               (ref :text "skribilo"
                                                    :url (skribilo-url))
                                               ")")
-                                        e))))
+                                        engine))))
    :after "</div>\n")
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-generic-title ...                                          */
 ;*---------------------------------------------------------------------*/
-(define (&html-generic-title n e)
-   (let* ((title (markup-body n))
-	  (authors (markup-option n 'author))
-	  (tbg (engine-custom e 'title-background))
-	  (tfg (engine-custom e 'title-foreground))
-	  (tfont (engine-custom e 'title-font)))
+(define (&html-generic-title node engine)
+   (let* ((title (markup-body node))
+	  (authors (markup-option node 'author))
+	  (tbg (engine-custom engine 'title-background))
+	  (tfg (engine-custom engine 'title-foreground))
+	  (tfont (engine-custom engine 'title-font)))
       (when title
         (html-open 'table
                    `((width . "100%")
@@ -979,17 +982,17 @@ unspecified or #f values are ignored."
 		(begin
 		  (format #t "<font ~a>" tfont)
                   (html-open 'strong)
-		  (output title e)
+		  (output title engine)
                   (html-close 'strong)
                   (html-close 'font))
 		(begin
                   (html-open 'div
                              '((class . "skribilo-title")))
-		  (output title e)
+		  (output title engine)
                   (html-close 'div))))
 	 (if (not authors)
 	     (display "\n")
-	     (html-title-authors authors e))
+	     (html-title-authors authors engine))
 	 (if (string? tfg)
              (html-close 'font))
          (html-close 'td)
@@ -1010,8 +1013,8 @@ unspecified or #f values are ignored."
 ;*    &html-footnotes                                                  */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-footnotes
-   :before (lambda (n e)
-	      (let ((footnotes (markup-body n)))
+   :before (lambda (node engine)
+	      (let ((footnotes (markup-body node)))
 		 (when (pair? footnotes)
                    (html-open 'div
                               '((class . "skribilo-footnote")))
@@ -1019,8 +1022,8 @@ unspecified or #f values are ignored."
                               '((width . "20%")
                                 (size . "2")
                                 (align . "left"))))))
-   :action (lambda (n e)
-             (let ((footnotes (markup-body n)))
+   :action (lambda (node engine)
+             (let ((footnotes (markup-body node)))
                (for-each (lambda (fn)
                            (html-open 'div
                                       '((class . "footnote")))
@@ -1040,7 +1043,7 @@ unspecified or #f values are ignored."
                            (html-close 'small)
                            (html-close 'sup)
                            (html-close 'a)
-			   (output (markup-body fn) e)
+			   (output (markup-body fn) engine)
                            (html-close 'div))
                          footnotes)
                (when (pair? footnotes)
@@ -1049,7 +1052,7 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 ;*    html-title-authors ...                                           */
 ;*---------------------------------------------------------------------*/
-(define (html-title-authors authors e)
+(define (html-title-authors authors engine)
    (define (html-authorsN authors cols first)
       (define (make-row authors . opt)
 	 (tr (map (lambda (v)
@@ -1078,14 +1081,14 @@ unspecified or #f values are ignored."
 		     (cons (make-row (list (car authors)) :colspan cols)
 			   (make-rows (cdr authors)))
 		     (make-rows authors)))
-	      e))
+	      engine))
    (cond
       ((pair? authors)
        (html-open 'center)
        (let ((len (length authors)))
 	  (case len
 	     ((1)
-	      (output (car authors) e))
+	      (output (car authors) engine))
 	     ((2 3)
 	      (html-authorsN authors len #f))
 	     ((4)
@@ -1094,32 +1097,32 @@ unspecified or #f values are ignored."
 	      (html-authorsN authors 3 #t))))
        (html-close 'center))
       (else
-       (html-title-authors (list authors) e))))
+       (html-title-authors (list authors) engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    author ...                                                       */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'author
    :options '(:name :title :affiliation :email :url :address :phone :photo :align)
-   :before (lambda (n e)
+   :before (lambda (node engine)
              (html-open 'table
-                        `((class . ,(markup-class n))))
+                        `((class . ,(markup-class node))))
              (html-open 'tbody))
-   :action (lambda (n e)
-	      (let ((name (markup-option n :name))
-		    (title (markup-option n :title))
-		    (affiliation (markup-option n :affiliation))
-		    (email (markup-option n :email))
-		    (url (markup-option n :url))
-		    (address (markup-option n :address))
-		    (phone (markup-option n :phone))
-		    (nfn (engine-custom e 'author-font))
-		    (align (markup-option n :align)))
-		 (define (row n)
+   :action (lambda (node engine)
+	      (let ((name (markup-option node :name))
+		    (title (markup-option node :title))
+		    (affiliation (markup-option node :affiliation))
+		    (email (markup-option node :email))
+		    (url (markup-option node :url))
+		    (address (markup-option node :address))
+		    (phone (markup-option node :phone))
+		    (nfn (engine-custom engine 'author-font))
+		    (align (markup-option node :align)))
+		 (define (row node)
                    (html-open 'tr)
                    (html-open 'td
                               `((align . ,align)))
-		   (output n e)
+		   (output node engine)
                    (html-close 'td)
                    (html-close 'tr))
 		 ;; name
@@ -1127,7 +1130,7 @@ unspecified or #f values are ignored."
                  (html-open 'td
                             `((align . ,align)))
 		 (if nfn (format #t "<font ~a>\n" nfn))
-		 (output name e)
+		 (output name engine)
 		 (if nfn (html-close 'font))
                  (html-close 'td)
                  (html-close 'tr)
@@ -1151,21 +1154,21 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'author
    :options '(:name :title :affiliation :email :url :address :phone :photo :align)
-   :predicate (lambda (n e) (markup-option n :photo))
-   :before (lambda (n e)
+   :predicate (lambda (node engine) (markup-option node :photo))
+   :before (lambda (node engine)
              (html-open 'table
-                        `((class . ,(markup-class n))))
+                        `((class . ,(markup-class node))))
              (html-open 'tbody)
              (html-open 'tr))
-   :action (lambda (n e)
-	      (let ((photo (markup-option n :photo)))
+   :action (lambda (node engine)
+	      (let ((photo (markup-option node :photo)))
                 (html-open 'td)
-                (output photo e)
+                (output photo engine)
                 (html-close 'td)
                 (html-open 'td)
-		(markup-option-add! n :photo #f)
-		(output n e)
-		(markup-option-add! n :photo photo)
+		(markup-option-add! node :photo #f)
+		(output node engine)
+		(markup-option-add! node :photo photo)
                 (html-close 'td)))
    :after "</tr>\n</tbody></table>")
 
@@ -1174,7 +1177,7 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'toc
    :options 'all
-   :action (lambda (n e)
+   :action (lambda (node engine)
 	      (define (col n)
 		 (let loop ((i 0))
 		      (if (< i n)
@@ -1186,7 +1189,7 @@ unspecified or #f values are ignored."
                 (match fe
                   ((c ch ...)
 		   (let ((id (markup-ident c))
-		         (f (html-file c e)))
+		         (f (html-file c engine)))
 		     (unless (string? id)
 		       (skribe-error 'toc
 				     (format #f "invalid identifier '~a'" id)
@@ -1198,7 +1201,7 @@ unspecified or #f values are ignored."
                      (html-open 'td
                                 '((valign . "top")
                                   (align . "left")))
-                     (display (html-container-number c e))
+                     (display (html-container-number c engine))
                      (html-close 'td)
 		     ;; title
                      (html-open 'td
@@ -1211,18 +1214,20 @@ unspecified or #f values are ignored."
 			                        ""
 			                        (strip-ref-base (or f (*destination-file*) "")))
                                             (string-canonicalize id)))))
-		     (output (markup-option c :title) e)
+		     (output (markup-option c :title) engine)
                      (html-close 'a)
                      (html-close 'td)
                      (html-close 'tr)
 		     ;; the children
-		     (for-each (lambda (n) (toc-entry n (+ 1 level))) ch)))))
+		     (for-each (lambda (node)
+                                 (toc-entry node (+ 1 level)))
+                               ch)))))
 
-	      (let* ((c (markup-option n :chapter))
-		     (s (markup-option n :section))
-		     (ss (markup-option n :subsection))
-		     (sss (markup-option n :subsubsection))
-		     (b (markup-body n))
+	      (let* ((c (markup-option node :chapter))
+		     (s (markup-option node :section))
+		     (ss (markup-option node :subsection))
+		     (sss (markup-option node :subsubsection))
+		     (b (markup-body node))
 		     (bb (if (handle? b)
 			     (handle-ast b)
 			     b)))
@@ -1239,69 +1244,75 @@ unspecified or #f values are ignored."
 						      (and ss (is-markup? x 'subsection))
 						      (and s (is-markup? x 'section))
 						      (and c (is-markup? x 'chapter))
-						      (markup-option n (symbol->keyword
-									(markup-markup x))))))
+						      (markup-option node
+                                                                     (symbol->keyword
+								      (markup-markup x))))))
 					   (container-body bb))))
 		       ;; avoid to produce an empty table
 		       (unless (null? lst)
                          (html-open 'table
-                                    `((class . ,(markup-class n))
+                                    `((class . ,(markup-class node))
                                       (cellspacing . "1")
                                       (cellpadding . "1")
                                       (width . "100%")))
                          (html-open 'tbody)
-			 (for-each (lambda (n) (toc-entry n 0)) lst)
+			 (for-each (lambda (node)
+                                     (toc-entry node 0))
+                                   lst)
                          (html-close 'tbody)
                          (html-close 'table)))))))
 
-(define (sections-in-same-file? n1 n2 e)
-  ;; Return #t when N1 and N2 are to be output in the same file according to
-  ;; E's settings.
-  (and (container? n1) (container? n2)
-       (equal? (html-file n1 e) (html-file n2 e))))
+(define (sections-in-same-file? node1 node2 engine)
+  ;; Return #t when NODE1 and NODE2 are to be output in the same file
+  ;; according to E's settings.
+  (and (container? node1)
+       (container? node2)
+       (equal? (html-file node1 engine)
+               (html-file node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-generic-document ...                                       */
 ;*---------------------------------------------------------------------*/
-(define (&html-generic-document n title e)
+(define (&html-generic-document node title engine)
   (define (set-output-encoding)
     ;; Make sure the output is suitably encoded.
-    (and=> (engine-custom e 'charset)
+    (and=> (engine-custom engine 'charset)
            (lambda (charset)
              (set-port-encoding! (current-output-port) charset)
              (set-port-conversion-strategy! (current-output-port) 'error))))
 
-   (let* ((id (markup-ident n))
+   (let* ((id (markup-ident node))
 	  (header (new markup
 		     (markup '&html-chapter-header)
 		     (ident (string-append id "-header"))
-		     (class (markup-class n))
-		     (parent n)
-		     (body (html-browser-title n))))
+		     (class (markup-class node))
+		     (parent node)
+		     (body (html-browser-title node))))
           (meta (new markup
                    (markup '&html-meta)
                    (ident (string-append id "-meta"))
-                   (class (markup-class n))
-                   (parent n)
-                   (body (markup-option (ast-document n) :keywords))))
+                   (class (markup-class node))
+                   (parent node)
+                   (body (markup-option (ast-document node)
+                                        :keywords))))
 	  (head (new markup
 		   (markup '&html-head)
 		   (ident (string-append id "-head"))
-		   (class (markup-class n))
-		   (parent n)
+		   (class (markup-class node))
+		   (parent node)
 		   (body (list header meta))))
 	  (ftnote (new markup
 		     (markup '&html-footnotes)
 		     (ident (string-append id "-footnote"))
-		     (class (markup-class n))
-		     (parent n)
+		     (class (markup-class node))
+		     (parent node)
 
 		     (body
                       ;; Collect the footnotes of all the sub-containers that
                       ;; are to be output in the same file.
                       (match (find-down (lambda (s)
-                                          (sections-in-same-file? s n e))
-                                        n)
+                                          (sections-in-same-file? s node engine))
+                                        node)
                         ((containers ...)
                          (reverse
                           (let loop ((subsections containers)
@@ -1318,57 +1329,58 @@ unspecified or #f values are ignored."
 	  (page (new markup
 		   (markup '&html-page)
 		   (ident (string-append id "-page"))
-		   (class (markup-class n))
-		   (parent n)
-		   (body (list (markup-body n) ftnote))))
+		   (class (markup-class node))
+		   (parent node)
+		   (body (list (markup-body node)
+                               ftnote))))
 	  (ending (new markup
 		     (markup '&html-ending)
 		     (ident (string-append id "-ending"))
-		     (class (markup-class n))
-		     (parent n)
-		     (body (or (markup-option n :ending)
-			       (let ((p (ast-document n)))
+		     (class (markup-class node))
+		     (parent node)
+		     (body (or (markup-option node :ending)
+			       (let ((p (ast-document node)))
 				  (and p (markup-option p :ending)))))))
 	  (body (new markup
 		   (markup '&html-body)
 		   (ident (string-append id "-body"))
-		   (class (markup-class n))
-		   (parent n)
+		   (class (markup-class node))
+		   (parent node)
 		   (body (list title page ending))))
 	  (html (new markup
 		   (markup '&html-html)
 		   (ident (string-append id "-html"))
-		   (class (markup-class n))
-		   (parent n)
+		   (class (markup-class node))
+		   (parent node)
 		   (body (list head body)))))
       ;; No file must be opened for documents. These files are
       ;; directly opened by Skribe
-      (if (document? n)
+      (if (document? node)
           (begin
             (set-output-encoding)
-            (output html e))
-          (parameterize ((*destination-file* (html-file n e)))
+            (output html engine))
+          (parameterize ((*destination-file* (html-file node engine)))
             (with-output-to-file (*destination-file*)
               (lambda ()
                 (set-output-encoding)
-		(output html e)))))))
+		(output html engine)))))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-generic-subdocument ...                                    */
 ;*---------------------------------------------------------------------*/
-(define (&html-generic-subdocument n e)
-   (let* ((p (ast-document n))
-	  (id (markup-ident n))
-	  (ti (let* ((nb (html-container-number n e))
-		     (tc (markup-option n :title))
+(define (&html-generic-subdocument node engine)
+   (let* ((p (ast-document node))
+	  (id (markup-ident node))
+	  (ti (let* ((nb (html-container-number node engine))
+		     (tc (markup-option node :title))
 		     (ti (if (document? p)
 			     (list (markup-option p :title)
-				   (engine-custom e 'file-title-separator)
+				   (engine-custom engine 'file-title-separator)
 				   tc)
 			     tc))
 		     (sep (engine-custom
-			     e
-			     (symbol-append (markup-markup n)
+			     engine
+			     (symbol-append (markup-markup node)
 					    '-title-number-separator)))
 		     (nti (and tc
 			       (if (and nb (not (equal? nb "")))
@@ -1377,26 +1389,26 @@ unspecified or #f values are ignored."
 					 ti)
 				   ti))))
 		 (new markup
-		    (markup (symbol-append '&html- (markup-markup n) '-title))
+		    (markup (symbol-append '&html- (markup-markup node) '-title))
 		    (ident (string-append id "-title"))
-		    (parent n)
+		    (parent node)
 		    (options '((author ())))
 		    (body nti)))))
-      (case (markup-markup n)
+      (case (markup-markup node)
 	 ((chapter)
-	  (skribe-message "  [~s chapter: ~a]\n" (engine-ident e) id))
+	  (skribe-message "  [~s chapter: ~a]\n" (engine-ident engine) id))
 	 ((section)
-	  (skribe-message "    [~s section: ~a]\n" (engine-ident e) id)))
-      (&html-generic-document n ti e)))
+	  (skribe-message "    [~s section: ~a]\n" (engine-ident engine) id)))
+      (&html-generic-document node ti engine)))
 
 ;*---------------------------------------------------------------------*/
 ;*    chapter ... @label chapter@                                      */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'chapter
    :options '(:title :number :file :toc :html-title :env)
-   :before (lambda (n e)
-	      (let ((title (markup-option n :title))
-		    (ident (markup-ident n)))
+   :before (lambda (node engine)
+	      (let ((title (markup-option node :title))
+		    (ident (markup-ident node)))
 		 (display "<!-- ")
 		 (output title html-title-engine)
 		 (display " -->\n")
@@ -1405,35 +1417,37 @@ unspecified or #f values are ignored."
                  (html-close 'a)
                  (html-open 'center)
                  (html-open 'h1
-                            `((class . ,(markup-class n))))
-		 (output (html-container-number n e) e)
+                            `((class . ,(markup-class node))))
+		 (output (html-container-number node engine)
+                         engine)
 		 (display " ")
-		 (output (markup-option n :title) e)
+		 (output (markup-option node :title)
+                         engine)
                  (html-close 'h1)
                  (html-close 'center))))
 
 ;; This writer is invoked only for chapters rendered inside separate files!
 (markup-writer 'chapter
    :options '(:title :number :file :toc :html-title :env)
-   :predicate (lambda (n e)
-		 (or (markup-option n :file)
-		     (engine-custom e 'chapter-file)))
+   :predicate (lambda (node engine)
+		 (or (markup-option node :file)
+		     (engine-custom engine 'chapter-file)))
    :action &html-generic-subdocument)
 
 ;*---------------------------------------------------------------------*/
 ;*    html-section-title ...                                           */
 ;*---------------------------------------------------------------------*/
-(define (html-section-title n e)
-   (let* ((title (markup-option n :title))
-	  (number (markup-option n :number))
-	  (c (markup-class n))
-	  (ident (markup-ident n))
-	  (kind (markup-markup n))
-	  (tbg (engine-custom e (symbol-append kind '-title-background)))
-	  (tfg (engine-custom e (symbol-append kind '-title-foreground)))
-	  (tstart (engine-custom e (symbol-append kind '-title-start)))
-	  (tstop (engine-custom e (symbol-append kind '-title-stop)))
-	  (nsep (engine-custom e (symbol-append kind '-title-number-separator))))
+(define (html-section-title node engine)
+   (let* ((title (markup-option node :title))
+	  (number (markup-option node :number))
+	  (c (markup-class node))
+	  (ident (markup-ident node))
+	  (kind (markup-markup node))
+	  (tbg (engine-custom engine (symbol-append kind '-title-background)))
+	  (tfg (engine-custom engine (symbol-append kind '-title-foreground)))
+	  (tstart (engine-custom engine (symbol-append kind '-title-start)))
+	  (tstop (engine-custom engine (symbol-append kind '-title-stop)))
+	  (nsep (engine-custom engine (symbol-append kind '-title-number-separator))))
       ;; the section header
       (display "<!-- ")
       (output title html-title-engine)
@@ -1445,7 +1459,7 @@ unspecified or #f values are ignored."
           (html-open 'div
                      `((class . ,(string-append c "-title"))))
           (html-open 'div
-                     `((class . ,(string-append "skribilo-" (markup-markup n) "-title")))))
+                     `((class . ,(string-append "skribilo-" (markup-markup node) "-title")))))
       (when (html-color-spec? tbg)
         (html-open 'table
                    '((width . "100%")))
@@ -1458,9 +1472,10 @@ unspecified or #f values are ignored."
                      `((color . ,tfg))))
       (if number
 	  (begin
-	     (output (html-container-number n e) e)
-	     (output nsep e)))
-      (output title e)
+	     (output (html-container-number node engine)
+                     engine)
+	     (output nsep engine)))
+      (output title engine)
       (if tfg
           (html-close 'font))
       (display tstop)
@@ -1469,7 +1484,7 @@ unspecified or #f values are ignored."
         (html-close 'tr)
         (html-close 'table))
       (html-close 'div)
-      ((html-markup-class "div") n e))
+      ((html-markup-class "div") node engine))
    (newline))
 
 ;*---------------------------------------------------------------------*/
@@ -1483,9 +1498,9 @@ unspecified or #f values are ignored."
 ;; on-file section writer
 (markup-writer 'section
    :options '(:title :html-title :number :toc :file :env)
-   :predicate (lambda (n e)
-		 (or (markup-option n :file)
-		     (engine-custom e 'section-file)))
+   :predicate (lambda (node engine)
+		 (or (markup-option node :file)
+		     (engine-custom engine 'section-file)))
    :action &html-generic-subdocument)
 
 ;*---------------------------------------------------------------------*/
@@ -1499,9 +1514,9 @@ unspecified or #f values are ignored."
 ;; on-file subsection writer
 (markup-writer 'section
    :options '(:title :html-title :number :toc :file :env)
-   :predicate (lambda (n e)
-		 (or (markup-option n :file)
-		     (engine-custom e 'subsection-file)))
+   :predicate (lambda (node engine)
+		 (or (markup-option node :file)
+		     (engine-custom engine 'subsection-file)))
    :action &html-generic-subdocument)
 
 ;*---------------------------------------------------------------------*/
@@ -1515,22 +1530,23 @@ unspecified or #f values are ignored."
 ;; on-file subsection writer
 (markup-writer 'section
    :options '(:title :html-title :number :toc :file :env)
-   :predicate (lambda (n e)
-		 (or (markup-option n :file)
-		     (engine-custom e 'subsubsection-file)))
+   :predicate (lambda (node engine)
+		 (or (markup-option node :file)
+		     (engine-custom engine 'subsubsection-file)))
    :action &html-generic-subdocument)
 
 ;*---------------------------------------------------------------------*/
 ;*    paragraph ...                                                    */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'paragraph
-   :before (lambda (n e)
-	      (when (and (>= (*debug*) 2) (location? (ast-loc n)))
+   :before (lambda (node engine)
+	      (when (and (>= (*debug*) 2)
+                         (location? (ast-loc node)))
                 (html-open 'span
                            '((style . "display: block; position: relative; left: -2cm; font-size: x-small; font-style: italic; color: ff8e1e;")))
-                (ast-loc n)
+                (ast-loc node)
                 (html-close 'span))
-	      ((html-markup-class "p") n e))
+	      ((html-markup-class "p") node engine))
    :after "</p>")
 
 ;*---------------------------------------------------------------------*/
@@ -1546,18 +1562,18 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'footnote
    :options '(:label)
-   :action (lambda (n e)
+   :action (lambda (node engine)
              (html-open 'a
                         `((name . ,(string-append "footnote-site-"
                                                   (string-canonicalize
-                                                   (container-ident n))))))
+                                                   (container-ident node))))))
              (html-open 'a
                         `((href . ,(string-append "#footnote-"
                                                   (string-canonicalize
-                                                   (container-ident n))))))
+                                                   (container-ident node))))))
              (html-open 'sup)
              (html-open 'small)
-             (display (markup-option n :label))
+             (display (markup-option node :label))
              (html-close 'small)
              (html-close 'sup)
              (html-close 'a)))
@@ -1566,18 +1582,18 @@ unspecified or #f values are ignored."
 ;*    linebreak ...                                                    */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'linebreak
-	       :before (lambda (n e)
+	       :before (lambda (node engine)
                          (html-open 'br
-                                    `((class . ,(html-class n))))))
+                                    `((class . ,(html-class node))))))
 
 ;*---------------------------------------------------------------------*/
 ;*    hrule ...                                                        */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'hrule
    :options '(:width :height)
-   :before (lambda (n e)
-	      (let ((width (markup-option n :width))
-		    (height (markup-option n :height)))
+   :before (lambda (node engine)
+	      (let ((width (markup-option node :width))
+		    (height (markup-option node :height)))
                 (html-open 'hr
                            `((width . ,(and (< width 100)
                                             (html-width width)))
@@ -1589,14 +1605,14 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'color
    :options '(:bg :fg :width :margin)
-   :before (lambda (n e)
-	      (let ((m (markup-option n :margin))
-		    (w (markup-option n :width))
-		    (bg (markup-option n :bg))
-		    (fg (markup-option n :fg)))
+   :before (lambda (node engine)
+	      (let ((m (markup-option node :margin))
+		    (w (markup-option node :width))
+		    (bg (markup-option node :bg))
+		    (fg (markup-option node :fg)))
 		 (when (html-color-spec? bg)
                    (html-open 'table
-                              `((class . ,(markup-class n))
+                              `((class . ,(markup-class node))
                                 (cellspacing . "0")
                                 (cellpadding . ,(or m 0))
                                 (width . ,(and w (html-width w)))))
@@ -1604,15 +1620,15 @@ unspecified or #f values are ignored."
                    (html-open 'tr)
                    (html-open 'td
                               `((bgcolor . ,(with-output-to-string
-                                              (cut output bg e))))))
+                                              (cut output bg engine))))))
 		 (when (html-color-spec? fg)
                    (html-open 'font
                               `((color . ,(with-output-to-string
-                                            (cut output fg e))))))))
-   :after (lambda (n e)
-	     (when (html-color-spec? (markup-option n :fg))
+                                            (cut output fg engine))))))))
+   :after (lambda (node engine)
+	     (when (html-color-spec? (markup-option node :fg))
                (html-close 'font))
-	     (when (html-color-spec? (markup-option n :bg))
+	     (when (html-color-spec? (markup-option node :bg))
                (html-close 'td)
                (html-close 'tr)
                (html-close 'tbody)
@@ -1623,12 +1639,12 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'frame
    :options '(:width :margin :border)
-   :before (lambda (n e)
-	      (let ((m (markup-option n :margin))
-		    (b (markup-option n :border))
-		    (w (markup-option n :width)))
+   :before (lambda (node engine)
+	      (let ((m (markup-option node :margin))
+		    (b (markup-option node :border))
+		    (w (markup-option node :width)))
                 (html-open 'table
-                           `((class . ,(markup-class n))
+                           `((class . ,(markup-class node))
                              (cellspacing . "0")
                              (cellpadding . ,(or m 0))
                              (border . ,(or b 0))
@@ -1643,9 +1659,9 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'font
    :options '(:size :face)
-   :before (lambda (n e)
-	      (let ((size (markup-option n :size))
-		    (face (markup-option n :face)))
+   :before (lambda (node engine)
+	      (let ((size (markup-option node :size))
+		    (face (markup-option node :face)))
 		 (when (and (number? size) (inexact? size))
 		    (let ((s (if (> size 0) 'big 'small))
 			  (d (if (> size 0) 1 -1)))
@@ -1654,15 +1670,15 @@ unspecified or #f values are ignored."
                            (html-open s))))
 		 (when (or (and (number? size) (exact? size)) face)
                    (html-open 'font
-                              `((class . ,(markup-class n))
+                              `((class . ,(markup-class node))
                                 (size . ,(and (number? size)
                                               (exact? size)
                                               (not (zero? size))
                                               size))
                                 (face . ,face))))))
-   :after (lambda (n e)
-	     (let ((size (markup-option n :size))
-		   (face (markup-option n :face)))
+   :after (lambda (node engine)
+	     (let ((size (markup-option node :size))
+		   (face (markup-option node :face)))
 		(when (or (and (number? size) (exact? size) (not (= size 0)))
 			  face)
                   (html-close 'font))
@@ -1678,14 +1694,14 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'flush
    :options '(:side)
-   :before (lambda (n e)
-	      (case (markup-option n :side)
+   :before (lambda (node engine)
+	      (case (markup-option node :side)
 		 ((center)
                   (html-open 'center
-                             `((class . ,(markup-class n)))))
+                             `((class . ,(markup-class node)))))
 		 ((left)
                   (html-open 'p
-                             `((class . ,(markup-class n))
+                             `((class . ,(markup-class node))
                                (style . "text-align:left;"))))
 		 ((right)
                   (html-open 'table
@@ -1699,9 +1715,9 @@ unspecified or #f values are ignored."
 		 (else
 		  (skribe-error 'flush
 				"Invalid side"
-				(markup-option n :side)))))
-   :after (lambda (n e)
-	     (case (markup-option n :side)
+				(markup-option node :side)))))
+   :after (lambda (node engine)
+	     (case (markup-option node :side)
 		((center)
                  (html-close 'center))
 		((right)
@@ -1737,7 +1753,7 @@ unspecified or #f values are ignored."
 (markup-writer 'itemize
    :options '(:symbol)
    :before (html-markup-class "ul")
-   :action (lambda (n e)
+   :action (lambda (node engine)
 	      (for-each (lambda (item)
 			  (let ((ident (and (markup? item)
 					    (markup-ident item))))
@@ -1747,9 +1763,9 @@ unspecified or #f values are ignored."
                                 (html-open 'a
                                            `((name . ,(string-canonicalize ident))))
                                 (html-close 'a))
-			   (output item e)
+			   (output item engine)
                            (html-close 'li)))
-			(markup-body n)))
+			(markup-body node)))
    :after "</ul>")
 
 ;*---------------------------------------------------------------------*/
@@ -1758,7 +1774,7 @@ unspecified or #f values are ignored."
 (markup-writer 'enumerate
    :options '(:symbol)
    :before (html-markup-class "ol")
-   :action (lambda (n e)
+   :action (lambda (node engine)
 	      (for-each (lambda (item)
 			  (let ((ident (and (markup? item)
 					    (markup-ident item))))
@@ -1768,9 +1784,9 @@ unspecified or #f values are ignored."
                                 (html-open 'a
                                            `((name . ,ident)))
                                 (html-close 'a))
-			    (output item e)
+			    (output item engine)
                             (html-close 'li)))
-			(markup-body n)))
+			(markup-body node)))
    :after "</ol>")
 
 ;*---------------------------------------------------------------------*/
@@ -1779,21 +1795,22 @@ unspecified or #f values are ignored."
 (markup-writer 'description
    :options '(:symbol)
    :before (html-markup-class "dl")
-   :action (lambda (n e)
+   :action (lambda (node engine)
 	      (for-each (lambda (item)
 			   (let ((k (markup-option item :key)))
 			      (for-each (lambda (i)
                                           (html-open 'dt
                                                      `((class . ,(and (markup? i)
                                                                       (markup-class i)))))
-					  (output i e)
+					  (output i engine)
                                           (html-close 'dt))
 					(if (pair? k) k (list k)))
                               (html-open 'dd
                                          `((class . ,(markup-class item))))
-			      (output (markup-body item) e)
+			      (output (markup-body item)
+                                      engine)
                               (html-close 'dd)))
-			(markup-body n)))
+			(markup-body node)))
    :after "</dl>")
 
 ;*---------------------------------------------------------------------*/
@@ -1801,24 +1818,25 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'item
    :options '(:key)
-   :action (lambda (n e)
-	      (let ((k (markup-option n :key)))
+   :action (lambda (node engine)
+	      (let ((k (markup-option node :key)))
 		 (if k
 		     (begin
                        (html-open 'b
-                                  `((class . ,(markup-class n))))
-		       (output k e)
+                                  `((class . ,(markup-class node))))
+		       (output k engine)
                        (html-close 'b))))
-	      (output (markup-body n) e)))
+	      (output (markup-body node)
+                      engine)))
 
 ;*---------------------------------------------------------------------*/
 ;*    blockquote ...                                                   */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'blockquote
    :options '()
-   :before (lambda (n e)
+   :before (lambda (node engine)
              (html-open 'blockquote
-                        `((class . ,(markup-class n)))))
+                        `((class . ,(markup-class node)))))
    :after "\n</blockquote>\n")
 
 ;*---------------------------------------------------------------------*/
@@ -1827,23 +1845,24 @@ unspecified or #f values are ignored."
 (markup-writer 'figure
    :options '(:legend :number :multicolumns :legend-width)
    :before (html-markup-class "br")
-   :action (lambda (n e)
-	      (let ((ident (markup-ident n))
-		    (number (markup-option n :number))
-		    (legend (markup-option n :legend)))
+   :action (lambda (node engine)
+	      (let ((ident (markup-ident node))
+		    (number (markup-option node :number))
+		    (legend (markup-option node :legend)))
                 (html-open 'a
                            `((name . ,(string-canonicalize ident))))
                 (html-close 'a)
-		(output (markup-body n) e)
+		(output (markup-body node)
+                        engine)
                 (html-open 'br)
 		(output (new markup
 			     (markup '&html-figure-legend)
-			     (parent n)
+			     (parent node)
 			     (ident (string-append ident "-legend"))
-			     (class (markup-class n))
+			     (class (markup-class node))
 			     (options `((:number ,number)))
 			     (body legend))
-			e)))
+			engine)))
    :after "<br>")
 
 ;*---------------------------------------------------------------------*/
@@ -1851,9 +1870,9 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-figure-legend
    :options '(:number)
-   :before (lambda (n e)
+   :before (lambda (node engine)
               (html-open 'center)
-	      (let ((number (markup-option n :number)))
+	      (let ((number (markup-option node :number)))
 		(if number
                     (begin
                       (html-open 'strong)
@@ -1872,16 +1891,16 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'table
    :options '(:border :width :frame :rules :cellstyle :cellpadding :cellspacing)
-   :before (lambda (n e)
-	      (let ((width (markup-option n :width))
-		    (border (markup-option n :border))
-		    (frame (markup-option n :frame))
-		    (rules (markup-option n :rules))
-		    (cstyle (markup-option n :cellstyle))
-		    (cp (markup-option n :cellpadding))
-		    (cs (markup-option n :cellspacing)))
+   :before (lambda (node engine)
+	      (let ((width (markup-option node :width))
+		    (border (markup-option node :border))
+		    (frame (markup-option node :frame))
+		    (rules (markup-option node :rules))
+		    (cstyle (markup-option node :cellstyle))
+		    (cp (markup-option node :cellpadding))
+		    (cs (markup-option node :cellspacing)))
                 (html-open 'table
-                           `((class . ,(markup-class n))
+                           `((class . ,(markup-class node))
                              (width . ,(and width
                                             (html-width width)))
                              (border . ,border)
@@ -1918,10 +1937,10 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'tr
    :options '(:bg)
-   :before (lambda (n e)
-	      (let ((bg (markup-option n :bg)))
+   :before (lambda (node engine)
+	      (let ((bg (markup-option node :bg)))
                 (html-open 'tr
-                           `((class . ,(markup-class n))
+                           `((class . ,(markup-class node))
                              (bgcolor . ,(and (html-color-spec? bg)
                                               bg))))))
    :after "</tr>\n")
@@ -1931,22 +1950,22 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'tc
    :options '(markup :width :align :valign :colspan :rowspan :bg)
-   :before (lambda (n e)
-	      (let ((markup (or (markup-option n 'markup) 'td))
-		    (width (markup-option n :width))
-		    (align (markup-option n :align))
-		    (valign (let ((v (markup-option n :valign)))
+   :before (lambda (node engine)
+	      (let ((markup (or (markup-option node 'markup) 'td))
+		    (width (markup-option node :width))
+		    (align (markup-option node :align))
+		    (valign (let ((v (markup-option node :valign)))
 			       (cond
 				  ((or (eq? v 'center)
 				       (equal? v "center"))
 				   "middle")
                                   (else
                                    v))))
-		    (colspan (markup-option n :colspan))
-		    (rowspan (markup-option n :rowspan))
-		    (bg (markup-option n :bg)))
+		    (colspan (markup-option node :colspan))
+		    (rowspan (markup-option node :rowspan))
+		    (bg (markup-option node :bg)))
                 (html-open markup
-                           `((class . ,(markup-class n))
+                           `((class . ,(markup-class node))
                              (width . ,(and width (html-width width)))
                              (align . ,align)
                              (valign . ,valign)
@@ -1954,8 +1973,9 @@ unspecified or #f values are ignored."
                              (rowspan . ,rowspan)
                              (bgcolor . ,(and (html-color-spec? bg)
                                               bg))))))
-   :after (lambda (n e)
-	     (let ((markup (or (markup-option n 'markup) 'td)))
+   :after (lambda (node engine)
+	     (let ((markup (or (markup-option node 'markup)
+                               'td)))
                (html-close markup))))
 
 ;*---------------------------------------------------------------------*/
@@ -1963,13 +1983,13 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'image
    :options '(:file :url :width :height)
-   :action (lambda (n e)
-	      (let* ((file (markup-option n :file))
-		     (url (markup-option n :url))
-		     (width (markup-option n :width))
-		     (height (markup-option n :height))
-		     (body (markup-body n))
-		     (efmt (engine-custom e 'image-format))
+   :action (lambda (node engine)
+	      (let* ((file (markup-option node :file))
+		     (url (markup-option node :url))
+		     (width (markup-option node :width))
+		     (height (markup-option node :height))
+		     (body (markup-body node))
+		     (efmt (engine-custom engine 'image-format))
 		     (img (or url (convert-image file
 						 (if (list? efmt)
 						     efmt
@@ -1977,12 +1997,12 @@ unspecified or #f values are ignored."
 		 (if (not (string? img))
 		     (skribe-error 'html "Invalid image" file)
                      (html-open 'img
-                                `((class . ,(markup-class n))
+                                `((class . ,(markup-class node))
                                   (src . ,img)
                                   (border . "0")
                                   (alt . ,(if body
                                               (with-output-to-string
-                                                (cut output body e))
+                                                (cut output body engine))
                                               file))
                                   (width . ,(and width
                                                  (html-width width)))
@@ -2019,16 +2039,17 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'mailto
    :options '(:text)
-   :action (lambda (n e)
-	      (let ((text (markup-option n :text)))
+   :action (lambda (node engine)
+	      (let ((text (markup-option node :text)))
                 (html-open 'a
-                           `((class . ,(markup-class n))
+                           `((class . ,(markup-class node))
                              (href . ,(string-append "mailto:"
                                                      (with-output-to-string
-                                                       (cut output (markup-body n) e))))))
+                                                       (cut output (markup-body node) engine))))))
 		(if text
-		    (output text e)
-		    (evaluate-document (tt (markup-body n)) e))
+		    (output text engine)
+		    (evaluate-document (tt (markup-body node))
+                                       engine))
                 (html-close 'a))))
 
 ;*---------------------------------------------------------------------*/
@@ -2040,14 +2061,14 @@ unspecified or #f values are ignored."
 
 (markup-writer 'mailto
    :options '(:text)
-   :predicate (lambda (n e)
-		 (and (engine-custom e 'javascript)
-		      (or (string? (markup-body n))
-			  (and (pair? (markup-body n))
-			       (null? (cdr (markup-body n)))
-			       (string? (car (markup-body n)))))))
-   :action (lambda (n e)
-	      (let* ((body (markup-body n))
+   :predicate (lambda (node engine)
+		 (and (engine-custom engine 'javascript)
+		      (or (string? (markup-body node))
+			  (and (pair? (markup-body node))
+			       (null? (cdr (markup-body node)))
+			       (string? (car (markup-body node)))))))
+   :action (lambda (node engine)
+	      (let* ((body (markup-body node))
 		     (email (if (string? body) body (car body)))
 		     (split (string-tokenize email %non-at))
 		     (na (car split))
@@ -2056,7 +2077,7 @@ unspecified or #f values are ignored."
                                                    'pre " " 'post))
 		     (dd (regexp-substitute/global #f "\\." do
                                                    'pre " " 'post))
-		     (text (markup-option n :text)))
+		     (text (markup-option node :text)))
                 (html-open 'script
                            `((language . "JavaScript")
                              (type . "text/javascript")))
@@ -2065,7 +2086,7 @@ unspecified or #f values are ignored."
 		    (begin
 		      (format #t "skribenospam( ~s, ~s, false )" nn dd)
                       (html-close 'script)
-		      (output text e)
+		      (output text engine)
                       (html-open 'script
                                  `((language . "JavaScript")
                                    (type . "text/javascript")))
@@ -2076,10 +2097,10 @@ unspecified or #f values are ignored."
 ;*    mark ... @label mark@                                            */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'mark
-   :before (lambda (n e)
+   :before (lambda (node engine)
              (html-open 'a
-                        `((class . ,(markup-class n))
-                          (name . ,(string-canonicalize (markup-ident n))))))
+                        `((class . ,(markup-class node))
+                          (name . ,(string-canonicalize (markup-ident node))))))
    :after "</a>")
 
 ;*---------------------------------------------------------------------*/
@@ -2087,12 +2108,12 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'ref
    :options '(:text :chapter :section :subsection :subsubsection :figure :mark :handle)
-   :before (lambda (n e)
-	      (let* ((c (handle-ast (markup-body n)))
+   :before (lambda (node engine)
+	      (let* ((c (handle-ast (markup-body node)))
 		     (id (markup-ident c))
-		     (f (html-file c e))
-		     (class (if (markup-class n)
-				(markup-class n)
+		     (f (html-file c engine))
+		     (class (if (markup-class node)
+				(markup-class node)
 				"skribilo-ref")))
                 (html-open 'a
                            `((href . ,(string-append (if (and (*destination-file*) f
@@ -2102,33 +2123,33 @@ unspecified or #f values are ignored."
                                                      "#"
                                                      (string-canonicalize id)))
                              (class . ,class)))))
-   :action (lambda (n e)
-	      (let ((t (markup-option n :text))
-		    (m (markup-option n 'mark))
-		    (f (markup-option n :figure))
-		    (c (markup-option n :chapter))
-		    (s (markup-option n :section))
-		    (ss (markup-option n :subsection))
-		    (sss (markup-option n :subsubsection)))
+   :action (lambda (node engine)
+	      (let ((t (markup-option node :text))
+		    (m (markup-option node 'mark))
+		    (f (markup-option node :figure))
+		    (c (markup-option node :chapter))
+		    (s (markup-option node :section))
+		    (ss (markup-option node :subsection))
+		    (sss (markup-option node :subsubsection)))
 		 (cond
 		    (t
-		     (output t e))
+		     (output t engine))
 		    (f
 		     (output (new markup
 				(markup '&html-figure-ref)
-				(body (markup-body n)))
-			     e))
+				(body (markup-body node)))
+			     engine))
 		    ((or c s ss sss)
 		     (output (new markup
 				(markup '&html-section-ref)
-				(body (markup-body n)))
-			     e))
+				(body (markup-body node)))
+			     engine))
 
 		    ((not m)
 		     (output (new markup
 				(markup '&html-unmark-ref)
-				(body (markup-body n)))
-			     e))
+				(body (markup-body node)))
+			     engine))
 		    (else
 		     (display m)))))
    :after "</a>")
@@ -2137,37 +2158,39 @@ unspecified or #f values are ignored."
 ;*    &html-figure-ref ...                                             */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-figure-ref
-   :action (lambda (n e)
-	      (let ((c (handle-ast (markup-body n))))
+   :action (lambda (node engine)
+	      (let ((c (handle-ast (markup-body node))))
 		 (if (or (not (markup? c))
 			 (not (is-markup? c 'figure)))
 		     (display "???")
-		     (output (markup-option c :number) e)))))
+		     (output (markup-option c :number)
+                             engine)))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-section-ref ...                                            */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-section-ref
-   :action (lambda (n e)
-	      (let ((c (handle-ast (markup-body n))))
+   :action (lambda (node engine)
+	      (let ((c (handle-ast (markup-body node))))
 		 (if (not (markup? c))
 		     (display "???")
-		     (output (markup-option c :title) e)))))
+		     (output (markup-option c :title)
+                             engine)))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-unmark-ref ...                                             */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-unmark-ref
-   :action (lambda (n e)
-	      (let ((c (handle-ast (markup-body n))))
+   :action (lambda (node engine)
+	      (let ((c (handle-ast (markup-body node))))
 		 (if (not (markup? c))
 		     (display "???")
 		     (let ((t (markup-option c :title)))
 			(if t
-			    (output t e)
+			    (output t engine)
 			    (let ((l (markup-option c :legend)))
 			       (if l
-				   (output t e)
+				   (output t engine)
 				   (display
 				    (string-canonicalize
 				     (markup-ident c)))))))))))
@@ -2178,9 +2201,11 @@ unspecified or #f values are ignored."
 (markup-writer 'bib-ref
    :options '(:text :bib)
    :before "["
-   :action (lambda (n e)
+   :action (lambda (node engine)
              ;; Produce a hyperlink.
-             (output n e (markup-writer-get 'ref e)))
+             (output node
+                     engine
+                     (markup-writer-get 'ref engine)))
    :after "]")
 
 ;*---------------------------------------------------------------------*/
@@ -2188,11 +2213,11 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'url-ref
    :options '(:url :text)
-   :before (lambda (n e)
-	      (let* ((url (markup-option n :url))
+   :before (lambda (node engine)
+	      (let* ((url (markup-option node :url))
 		     (class (cond
-			       ((markup-class n)
-				(markup-class n))
+			       ((markup-class node)
+				(markup-class node))
 			       ((not (string? url))
 				#f)
 			       (else
@@ -2209,9 +2234,10 @@ unspecified or #f values are ignored."
                            `((href . ,(with-output-to-string
                                         (cut output url html-title-engine)))
                              (class . ,class)))))
-   :action (lambda (n e)
-	      (let ((v (markup-option n :text)))
-		 (output (or v (markup-option n :url)) e)))
+   :action (lambda (node engine)
+	      (let ((v (markup-option node :text)))
+		 (output (or v (markup-option node :url))
+                         engine)))
    :after "</a>")
 
 
@@ -2219,13 +2245,13 @@ unspecified or #f values are ignored."
 ;*    &prog-line ...                                                   */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&prog-line
-   :before (lambda (n e)
+   :before (lambda (node engine)
              (let ((before (writer-before
                             (markup-writer-get '&prog-line base-engine))))
                (html-open 'a
-                          `((class . ,(markup-class n))
-                            (name . ,(string-canonicalize (markup-ident n)))))
-               (before n e)))
+                          `((class . ,(markup-class node))
+                            (name . ,(string-canonicalize (markup-ident node)))))
+               (before node engine)))
    :after "</a>\n")
 
 ;*---------------------------------------------------------------------*/
@@ -2234,16 +2260,18 @@ unspecified or #f values are ignored."
 (markup-writer 'line-ref
    :options '(:offset)
    :before (html-markup-class "i")
-   :action (lambda (n e)
-	      (let ((o (markup-option n :offset))
-		    (v (markup-option (handle-ast (markup-body n)) :number)))
+   :action (lambda (node engine)
+	      (let ((o (markup-option node :offset))
+		    (v (markup-option (handle-ast (markup-body node)) :number)))
 		 (cond ((and (number? o) (number? v))
-                        (markup-option-set! n :text (+ o v)))
+                        (markup-option-set! node :text (+ o v)))
                        ((number? v)
-                        (markup-option-set! n :text v)))
-		 (output n e (markup-writer-get 'ref e))
+                        (markup-option-set! node :text v)))
+		 (output node
+                         engine
+                         (markup-writer-get 'ref engine))
 		 (if (and (number? o) (number? v))
-		     (markup-option-set! n :text v))))
+		     (markup-option-set! node :text v))))
    :after "</i>")
 
 ;*---------------------------------------------------------------------*/
@@ -2251,211 +2279,223 @@ unspecified or #f values are ignored."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'page-ref
    :options '(:mark :handle)
-   :action (lambda (n e)
-	      (error 'page-ref:html "Not implemented yet" n)))
+   :action (lambda (node engine)
+	      (error 'page-ref:html "Not implemented yet" node)))
 
 ;*---------------------------------------------------------------------*/
 ;*    &bib-entry-label ...                                             */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&bib-entry-label
    :options '(:title)
-   :before (lambda (n e)
+   :before (lambda (node engine)
              (html-open 'a
-                        `((class . ,(markup-class n))
-                          (name . ,(string-canonicalize (markup-ident n))))))
-   :action (lambda (n e)
-	      (output n e (markup-writer-get '&bib-entry-label base-engine)))
+                        `((class . ,(markup-class node))
+                          (name . ,(string-canonicalize (markup-ident node))))))
+   :action (lambda (node engine)
+	      (output node
+                      engine
+                      (markup-writer-get '&bib-entry-label base-engine)))
    :after "</a>")
 
 ;*---------------------------------------------------------------------*/
 ;*    &bib-entry-title ...                                             */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&bib-entry-title
-   :action (lambda (n e)
-	      (let* ((t (bold (markup-body n)))
-		     (en (handle-ast (ast-parent n)))
+   :action (lambda (node engine)
+	      (let* ((t (bold (markup-body node)))
+		     (en (handle-ast (ast-parent node)))
 		     (url (or (markup-option en 'url)
 			      (markup-option en 'documenturl)))
 		     (ht (if url (ref :url (markup-body url) :text t) t)))
-		 (evaluate-document ht e))))
+		 (evaluate-document ht engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &bib-entry-url ...                                               */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&bib-entry-url
-   :action (lambda (n e)
-	      (let* ((en (handle-ast (ast-parent n)))
+    :action (lambda (node engine)
+	      (let* ((en (handle-ast (ast-parent node)))
 		     (url (markup-option en 'url))
 		     (t (bold (markup-body url))))
-		 (evaluate-document (ref :url (markup-body url) :text t) e))))
+		(evaluate-document (ref :url (markup-body url) :text t)
+                                   engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &the-index-header ...                                            */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&the-index-header
-   :action (lambda (n e)
-             (html-open 'center
-                        `((class . ,(markup-class n))))
-	     (for-each (lambda (h)
-			 (let ((f (engine-custom e 'index-header-font-size)))
-			   (if f
-			       (evaluate-document (font :size f (bold (it h))) e)
-			       (output h e))
-			   (display " ")))
-		       (markup-body n))
-             (html-close 'center)
-	     (evaluate-document (linebreak 2) e)))
+    :action (lambda (node engine)
+              (html-open 'center
+                         `((class . ,(markup-class node))))
+	      (for-each (lambda (h)
+			  (let ((f (engine-custom engine 'index-header-font-size)))
+			    (if f
+			        (evaluate-document (font :size f (bold (it h)))
+                                                   engine)
+			        (output h engine))
+			    (display " ")))
+		        (markup-body node))
+              (html-close 'center)
+	      (evaluate-document (linebreak 2) engine)))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-comment ...                                              */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-comment
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-comment-color))
-		     (n1 (it (markup-body n)))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc n1)
-			     n1)))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-comment-color))
+		     (node1 (it (markup-body node)))
+		     (node2 (if (and (engine-custom engine 'source-color)
+                                     cc)
+			        (color :fg cc node1)
+			        node1)))
+	        (evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-line-comment ...                                         */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-line-comment
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-comment-color))
-		     (n1 (bold (markup-body n)))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc n1)
-			     n1)))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-comment-color))
+		     (node1 (bold (markup-body node)))
+		     (node2 (if (and (engine-custom engine 'source-color)
+                                     cc)
+			        (color :fg cc node1)
+			        node1)))
+	        (evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-keyword ...                                              */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-keyword
-   :action (lambda (n e)
-	      (evaluate-document (bold (markup-body n)) e)))
+    :action (lambda (node engine)
+	      (evaluate-document (bold (markup-body node))
+                                 engine)))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-error ...                                                */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-error
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-error-color))
-		     (n1 (bold (markup-body n)))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc n1)
-			     n1)))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-error-color))
+		     (node1 (bold (markup-body node)))
+		     (node2 (if (and (engine-custom engine 'source-color)
+                                     cc)
+			        (color :fg cc node1)
+			        node1)))
+	        (evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-define ...                                               */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-define
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-define-color))
-		     (n1 (bold (markup-body n)))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc n1)
-			     n1)))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+ 	      (let* ((cc (engine-custom engine 'source-define-color))
+		     (node1 (bold (markup-body node)))
+		     (node2 (if (and (engine-custom engine 'source-color) cc)
+			        (color :fg cc node1)
+			        node1)))
+	        (evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-module ...                                               */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-module
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-module-color))
-		     (n1 (bold (markup-body n)))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc n1)
-			     n1)))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-module-color))
+		     (node1 (bold (markup-body node)))
+		     (node2 (if (and (engine-custom engine 'source-color) cc)
+			        (color :fg cc node1)
+			        node1)))
+	        (evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-markup ...                                               */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-markup
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-markup-color))
-		     (n1 (bold (markup-body n)))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc n1)
-			     n1)))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-markup-color))
+		     (node1 (bold (markup-body node)))
+		     (node2 (if (and (engine-custom engine 'source-color)
+                                     cc)
+			        (color :fg cc node1)
+			        node1)))
+	        (evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-thread ...                                               */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-thread
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-thread-color))
-		     (n1 (bold (markup-body n)))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc n1)
-			     n1)))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-thread-color))
+		     (node1 (bold (markup-body node)))
+		     (node2 (if (and (engine-custom engine 'source-color)
+                                     cc)
+			        (color :fg cc node1)
+			        node1)))
+	        (evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-string ...                                               */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-string
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-string-color))
-		     (n1 (markup-body n))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc n1)
-			     n1)))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-string-color))
+		     (node1 (markup-body node))
+		     (node2 (if (and (engine-custom engine 'source-color)
+                                     cc)
+			        (color :fg cc node1)
+			        node1)))
+		(evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-bracket ...                                               */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-bracket
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-bracket-color))
-		     (n1 (markup-body n))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc (bold n1))
-			     (bold n1))))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-bracket-color))
+		     (node1 (markup-body node))
+		     (node2 (if (and (engine-custom engine 'source-color) cc)
+			        (color :fg cc (bold node1))
+			        (bold node1))))
+		(evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-type ...                                                 */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-type
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-type-color))
-		     (n1 (markup-body n))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc n1)
-			     (it n1))))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-type-color))
+		     (node1 (markup-body node))
+		     (node2 (if (and (engine-custom engine 'source-color) cc)
+			        (color :fg cc node1)
+			        (it node1))))
+		(evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-key ...                                                  */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-key
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-type-color))
-		     (n1 (markup-body n))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg cc (bold n1))
-			     (it n1))))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-type-color))
+		     (node1 (markup-body node))
+		     (node2 (if (and (engine-custom engine 'source-color) cc)
+			        (color :fg cc (bold node1))
+			        (it node1))))
+	        (evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &source-type ...                                                 */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&source-type
-   :action (lambda (n e)
-	      (let* ((cc (engine-custom e 'source-type-color))
-		     (n1 (markup-body n))
-		     (n2 (if (and (engine-custom e 'source-color) cc)
-			     (color :fg "red" (bold n1))
-			     (bold n1))))
-		 (evaluate-document n2 e))))
+    :action (lambda (node engine)
+	      (let* ((cc (engine-custom engine 'source-type-color))
+		     (node1 (markup-body node))
+		     (node2 (if (and (engine-custom engine 'source-color)
+                                     cc)
+			        (color :fg "red" (bold node1))
+			        (bold node1))))
+	        (evaluate-document node2 engine))))
 
 ;*---------------------------------------------------------------------*/
 ;*    Restore the base engine                                          */
