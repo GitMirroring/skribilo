@@ -47,6 +47,8 @@
   #:use-module (srfi srfi-26)
   #:use-module (srfi srfi-39)
 
+  #:use-module (rnrs io ports)
+
   #:export (html-engine html-title-engine html-file
            html-width html-class html-markup-class
            html-title-authors))
@@ -884,12 +886,8 @@ unspecified or #f values are ignored."
 					 "Can't open CSS file for input"
 					 css)
 					(begin
-					   (let loop ((l (read-line p)))
-					      (unless (eof-object? l)
-						 (display l)
-						 (newline)
-						 (loop (read-line p))))
-					   (close-input-port p)))))
+                                          (display (get-string-all p))
+					  (close-input-port p)))))
 			      icss))))
    :after "  -->\n </style>\n")
 
