@@ -969,49 +969,23 @@ ignored, return #f."
 (define (&html-generic-title node engine)
    (let* ((title (markup-body node))
 	  (authors (markup-option node 'author))
-	  (tbg (engine-custom engine 'title-background))
-	  (tfg (engine-custom engine 'title-foreground))
-	  (tfont (engine-custom engine 'title-font)))
+	  (title-background (engine-custom engine 'title-background))
+	  (title-foreground (engine-custom engine 'title-foreground))
+	  (title-font (engine-custom engine 'title-font)))
       (when title
-        (html-open 'table
-                   `((width . "100%")
-                     (class . "skribilo-title")
-                     (cellspacing . "0")
-                     (cellpadding . "0")))
-        (html-open 'tbody)
-        (html-open 'tr)
-	 (if (html-color-spec? tbg)
-             (html-open 'td
-                        `((align . "center")
-                          (bgcolor . ,(and (html-color-spec? tbg)
-                                           tbg))))
-             (html-open 'td
-                        '((align . "center"))))
-	 (if (string? tfg)
-             (html-open 'font
-                        `((color . ,tfg))))
-	 (when title
-	    (if (string? tfont)
-		(begin
-		  (format #t "<font ~a>" tfont)
-                  (html-open 'strong)
-		  (output title engine)
-                  (html-close 'strong)
-                  (html-close 'font))
-		(begin
-                  (html-open 'div
-                             '((class . "skribilo-title")))
-		  (output title engine)
-                  (html-close 'div))))
-	 (if (not authors)
-	     (display "\n")
-	     (html-title-authors authors engine))
-	 (if (string? tfg)
-             (html-close 'font))
-         (html-close 'td)
-         (html-close 'tr)
-         (html-close 'tbody)
-         (html-close 'table))))
+        (html-open 'div
+                   `((class . "skribilo-title")
+                     (style . ,(style-declaration
+                                `((color . ,(and (html-color-spec? title-foreground)
+                                                 title-foreground))
+                                  (background-color . ,(and (html-color-spec? title-background)
+                                                            title-background))
+                                  (font-family . ,title-font)
+                                  (text-align . "center"))))))
+        (output title engine)
+        (html-close 'div)
+        (when authors
+          (html-title-authors authors engine)))))
 
 ;*---------------------------------------------------------------------*/
 ;*    &html-document-title ...                                         */
@@ -1066,51 +1040,16 @@ ignored, return #f."
 ;*    html-title-authors ...                                           */
 ;*---------------------------------------------------------------------*/
 (define (html-title-authors authors engine)
-   (define (html-authorsN authors cols first)
-      (define (make-row authors . opt)
-	 (tr (map (lambda (v)
-		     (apply td :align 'center :valign 'top v opt))
-		  authors)))
-      (define (make-rows authors)
-	 (let loop ((authors authors)
-		    (rows '())
-		    (row '())
-		    (cnum 0))
-	    (cond
-	       ((null? authors)
-		(reverse! (cons (make-row (reverse! row)) rows)))
-	       ((= cnum cols)
-		(loop authors
-		      (cons (make-row (reverse! row)) rows)
-		      '()
-		      0))
-	       (else
-		(loop (cdr authors)
-		      rows
-		      (cons (car authors) row)
-		      (+ cnum 1))))))
-      (output (table :cellpadding 10
-		 (if first
-		     (cons (make-row (list (car authors)) :colspan cols)
-			   (make-rows (cdr authors)))
-		     (make-rows authors)))
-	      engine))
-   (cond
-      ((pair? authors)
-       (html-open 'center)
-       (let ((len (length authors)))
-	  (case len
-	     ((1)
-	      (output (car authors) engine))
-	     ((2 3)
-	      (html-authorsN authors len #f))
-	     ((4)
-	      (html-authorsN authors 2 #f))
-	     (else
-	      (html-authorsN authors 3 #t))))
-       (html-close 'center))
-      (else
-       (html-title-authors (list authors) engine))))
+  (match authors
+    ((single-author)
+     (html-title-authors (list single-author)
+                         engine))
+    (authors
+     (html-open 'div
+                `((style . ,(style-declaration
+                             '((text-align . "center"))))))
+     (display (string-join authors ", "))
+     (html-close 'div))))
 
 ;*---------------------------------------------------------------------*/
 ;*    author ...                                                       */
