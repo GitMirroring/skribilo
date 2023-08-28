@@ -1646,34 +1646,41 @@ ignored, return #f."
 (markup-writer 'font
    :options '(:size :face)
    :before (lambda (node engine)
-	      (let ((size (markup-option node :size))
-		    (face (markup-option node :face)))
-		 (when (and (number? size) (inexact? size))
-		    (let ((s (if (> size 0) 'big 'small))
-			  (d (if (> size 0) 1 -1)))
-		       (do ((i (inexact->exact size) (- i d)))
-			   ((= i 0))
-                           (html-open s))))
-		 (when (or (and (number? size) (exact? size)) face)
-                   (html-open 'font
-                              `((class . ,(markup-class node))
-                                (size . ,(and (number? size)
-                                              (exact? size)
-                                              (not (zero? size))
-                                              size))
-                                (face . ,face))))))
-   :after (lambda (node engine)
 	     (let ((size (markup-option node :size))
 		   (face (markup-option node :face)))
-		(when (or (and (number? size) (exact? size) (not (= size 0)))
-			  face)
-                  (html-close 'font))
-		(when (and (number? size) (inexact? size))
-		   (let ((s (if (> size 0) 'big 'small))
-			 (d (if (> size 0) 1 -1)))
-		      (do ((i (inexact->exact size) (- i d)))
-			  ((= i 0))
-                          (html-close s)))))))
+               ;; Set font face and size if absolute.
+               (html-open 'span
+                          `((class . ,(markup-class node))
+                            (style . ,(style-declaration
+                                       `((font-family . ,face)
+                                         (font-size . ,(and size
+                                                            (positive? size)
+                                                            (exact? size)
+                                                            (string-append (number->string size)
+                                                                           "px"))))))))
+               ;; If size is relative, add a number of <span> tags
+               ;; with larger/smaller font-size styles.
+               (when (and size
+                          (or (and (positive? size)
+                                   (inexact? size))
+                              (negative? size)))
+                 (for-each (lambda _
+                             (html-open 'span
+                                        `((style . ,(style-declaration
+                                                     `((font-size . ,(if (positive? size)
+                                                                         "larger"
+                                                                         "smaller"))))))))
+                           (iota (abs (inexact->exact size)))))))
+   :after (lambda (node engine)
+	    (let ((size (markup-option node :size)))
+              (when (and size
+                         (or (and (positive? size)
+                                  (inexact? size))
+                             (negative? size)))
+                (for-each (lambda _
+                            (html-close 'span))
+                          (iota (abs (inexact->exact size)))))
+              (html-close 'span))))
 
 ;*---------------------------------------------------------------------*/
 ;*    flush ...                                                        */
