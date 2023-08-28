@@ -1597,35 +1597,28 @@ ignored, return #f."
 ;*    color ...                                                        */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'color
-   :options '(:bg :fg :width :margin)
-   :before (lambda (node engine)
-	      (let ((m (markup-option node :margin))
-		    (w (markup-option node :width))
-		    (bg (markup-option node :bg))
-		    (fg (markup-option node :fg)))
-		 (when (html-color-spec? bg)
-                   (html-open 'table
-                              `((class . ,(markup-class node))
-                                (cellspacing . "0")
-                                (cellpadding . ,(or m 0))
-                                (width . ,(and w (html-width w)))))
-                   (html-open 'tbody)
-                   (html-open 'tr)
-                   (html-open 'td
-                              `((bgcolor . ,(with-output-to-string
-                                              (cut output bg engine))))))
-		 (when (html-color-spec? fg)
-                   (html-open 'font
-                              `((color . ,(with-output-to-string
-                                            (cut output fg engine))))))))
-   :after (lambda (node engine)
-	     (when (html-color-spec? (markup-option node :fg))
-               (html-close 'font))
-	     (when (html-color-spec? (markup-option node :bg))
-               (html-close 'td)
-               (html-close 'tr)
-               (html-close 'tbody)
-               (html-close 'table))))
+    :options '(:bg :fg :width :margin)
+    :before (lambda (node engine)
+	      (let ((margin (markup-option node :margin))
+		    (width (markup-option node :width))
+		    (background-color (markup-option node :bg))
+		    (foreground-color (markup-option node :fg)))
+                (html-open 'span
+                           `((class . ,(markup-class node))
+                             (style . ,(style-declaration
+                                        `((color . ,(and (html-color-spec? foreground-color)
+                                                         (with-output-to-string
+                                                           (cut output foreground-color engine))))
+                                          (background-color . ,(and (html-color-spec? background-color)
+                                                                    (with-output-to-string
+                                                                      (cut output background-color engine))))
+                                          (padding . ,(and margin
+                                                           (string-append (number->string margin)
+                                                                          "px")))
+                                          (width . ,(and width
+                                                         (string-append (html-width width)
+                                                                        "px"))))))))))
+    :after "</span>\n")
 
 ;*---------------------------------------------------------------------*/
 ;*    frame ...                                                        */
