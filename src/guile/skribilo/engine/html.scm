@@ -1721,8 +1721,11 @@ ignored, return #f."
 ;*    center ...                                                       */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'center
-   :before (html-markup-class "center")
-   :after "</center>\n")
+   :before (lambda (node engine)
+             (html-open 'span
+                        `((class . ,(markup-class node))
+                          (style . "text-align: center"))))
+   :after "</span>\n")
 
 ;*---------------------------------------------------------------------*/
 ;*    pre ...                                                          */
