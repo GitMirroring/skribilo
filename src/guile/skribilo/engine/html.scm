@@ -1056,73 +1056,56 @@ ignored, return #f."
 ;*---------------------------------------------------------------------*/
 (markup-writer 'author
    :options '(:name :title :affiliation :email :url :address :phone :photo :align)
-   :before (lambda (node engine)
-             (html-open 'table
-                        `((class . ,(markup-class node))))
-             (html-open 'tbody))
    :action (lambda (node engine)
-	      (let ((name (markup-option node :name))
-		    (title (markup-option node :title))
-		    (affiliation (markup-option node :affiliation))
-		    (email (markup-option node :email))
-		    (url (markup-option node :url))
-		    (address (markup-option node :address))
-		    (phone (markup-option node :phone))
-		    (nfn (engine-custom engine 'author-font))
-		    (align (markup-option node :align)))
-		 (define (row node)
-                   (html-open 'tr)
-                   (html-open 'td
-                              `((align . ,align)))
-		   (output node engine)
-                   (html-close 'td)
-                   (html-close 'tr))
-		 ;; name
-                 (html-open 'tr)
-                 (html-open 'td
-                            `((align . ,align)))
-		 (if nfn (format #t "<font ~a>\n" nfn))
-		 (output name engine)
-		 (if nfn (html-close 'font))
-                 (html-close 'td)
-                 (html-close 'tr)
-		 ;; title
-		 (if title (row title))
-		 ;; affiliation
-		 (if affiliation (row affiliation))
-		 ;; address
-		 (if (pair? address)
-		     (for-each row address))
-		 ;; telephone
-		 (if phone (row phone))
-		 ;; email
-		 (if email (row email))
-		 ;; url
-		 (if url (row url))))
-   :after "</tbody></table>")
+	     (let ((name (markup-option node :name))
+		   (title (markup-option node :title))
+		   (affiliation (markup-option node :affiliation))
+		   (email (markup-option node :email))
+		   (url (markup-option node :url))
+		   (address (markup-option node :address))
+		   (phone (markup-option node :phone))
+		   (author-font (engine-custom engine 'author-font))
+		   (align (markup-option node :align)))
+	       (define (row node)
+                 (output node engine)
+                 (html-open 'br))
+               (html-open 'div
+                          `((style . ,(style-declaration
+                                       `((text-align . ,align))))))
+	       ;; name
+               (when author-font
+                 (html-open 'span
+                            `((style . ,(style-declaration
+                                         `((font-family . ,author-font)))))))
+               (row name)
+               (when author-font (html-close 'span))
+	       ;; title
+	       (when title (row title))
+	       ;; affiliation
+	       (when affiliation (row affiliation))
+	       ;; address
+	       (when address (for-each row address))
+	       ;; telephone
+	       (when phone (row phone))
+	       ;; email
+	       (when email (row email))
+	       ;; url
+	       (when url (row url))
+               (html-close 'div))))
 
 ;*---------------------------------------------------------------------*/
 ;*    author ...                                                       */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'author
    :options '(:name :title :affiliation :email :url :address :phone :photo :align)
-   :predicate (lambda (node engine) (markup-option node :photo))
-   :before (lambda (node engine)
-             (html-open 'table
-                        `((class . ,(markup-class node))))
-             (html-open 'tbody)
-             (html-open 'tr))
+   :predicate (lambda (node engine)
+                (markup-option node :photo))
    :action (lambda (node engine)
 	      (let ((photo (markup-option node :photo)))
-                (html-open 'td)
                 (output photo engine)
-                (html-close 'td)
-                (html-open 'td)
 		(markup-option-add! node :photo #f)
 		(output node engine)
-		(markup-option-add! node :photo photo)
-                (html-close 'td)))
-   :after "</tr>\n</tbody></table>")
+		(markup-option-add! node :photo photo))))
 
 ;*---------------------------------------------------------------------*/
 ;*    toc ...                                                          */
