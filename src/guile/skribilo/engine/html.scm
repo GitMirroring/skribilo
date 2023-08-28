@@ -1402,22 +1402,24 @@ ignored, return #f."
    :before (lambda (node engine)
 	      (let ((title (markup-option node :title))
 		    (ident (markup-ident node)))
-		 (display "<!-- ")
-		 (output title html-title-engine)
-		 (display " -->\n")
-                 (html-open 'a
-                            `((name . ,(string-canonicalize ident))))
-                 (html-close 'a)
-                 (html-open 'center)
-                 (html-open 'h1
-                            `((class . ,(markup-class node))))
-		 (output (html-container-number node engine)
-                         engine)
-		 (display " ")
-		 (output (markup-option node :title)
-                         engine)
-                 (html-close 'h1)
-                 (html-close 'center))))
+                ;; chapter title in comments
+		(display "<!-- ")
+		(output title html-title-engine)
+		(display " -->\n")
+                ;; h1 wrapping chapter title
+                (html-open 'h1
+                           `((class . ,(markup-class node))
+                             (id . ,(string-canonicalize ident))
+                             (style . ,(style-declaration
+                                        '((text-align . "center"))))))
+                ;; chapter number
+		(output (html-container-number node engine)
+                        engine)
+		(display " ")
+                ;; chapter title
+		(output (markup-option node :title)
+                        engine)
+                (html-close 'h1))))
 
 ;; This writer is invoked only for chapters rendered inside separate files!
 (markup-writer 'chapter
