@@ -1633,19 +1633,23 @@ ignored, return #f."
 (markup-writer 'frame
    :options '(:width :margin :border)
    :before (lambda (node engine)
-	      (let ((m (markup-option node :margin))
-		    (b (markup-option node :border))
-		    (w (markup-option node :width)))
-                (html-open 'table
+	      (let ((margin (markup-option node :margin))
+		    (border (markup-option node :border))
+		    (width (markup-option node :width)))
+                (html-open 'div
                            `((class . ,(markup-class node))
-                             (cellspacing . "0")
-                             (cellpadding . ,(or m 0))
-                             (border . ,(or b 0))
-                             (width . ,(and w (html-width w)))))
-                (html-open 'tbody)
-                (html-open 'tr)
-                (html-open 'td)))
-   :after "</td></tr>\n</tbody></table>")
+                             (style . ,(style-declaration
+                                        `((border-style . "solid")
+                                          (border-width . ,(and border
+                                                                (string-append (number->string border)
+                                                                               "px")))
+                                          (padding . ,(and margin
+                                                           (string-append (number->string margin)
+                                                                          "px")))
+                                          (width . ,(and width
+                                                         (string-append (html-width width)
+                                                                        "px"))))))))))
+   :after "</div>\n")
 
 ;*---------------------------------------------------------------------*/
 ;*    font ...                                                         */
