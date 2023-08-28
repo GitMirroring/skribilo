@@ -1433,52 +1433,46 @@ ignored, return #f."
 (define (html-section-title node engine)
    (let* ((title (markup-option node :title))
 	  (number (markup-option node :number))
-	  (c (markup-class node))
+	  (class (markup-class node))
 	  (ident (markup-ident node))
 	  (kind (markup-markup node))
-	  (tbg (engine-custom engine (symbol-append kind '-title-background)))
-	  (tfg (engine-custom engine (symbol-append kind '-title-foreground)))
-	  (tstart (engine-custom engine (symbol-append kind '-title-start)))
-	  (tstop (engine-custom engine (symbol-append kind '-title-stop)))
-	  (nsep (engine-custom engine (symbol-append kind '-title-number-separator))))
-      ;; the section header
+	  (title-background (engine-custom engine
+                                           (symbol-append kind '-title-background)))
+	  (title-foreground (engine-custom engine
+                                           (symbol-append kind '-title-foreground)))
+	  (title-start (engine-custom engine
+                                      (symbol-append kind '-title-start)))
+	  (title-stop (engine-custom engine
+                                     (symbol-append kind '-title-stop)))
+	  (number-separator (engine-custom engine
+                                           (symbol-append kind '-title-number-separator))))
+      ;; section title in comments
       (display "<!-- ")
       (output title html-title-engine)
       (display " -->\n")
-      (html-open 'a
-                 `((name . ,(string-canonicalize ident))))
-      (html-close 'a)
-      (if c
-          (html-open 'div
-                     `((class . ,(string-append c "-title"))))
-          (html-open 'div
-                     `((class . ,(string-append "skribilo-" (markup-markup node) "-title")))))
-      (when (html-color-spec? tbg)
-        (html-open 'table
-                   '((width . "100%")))
-        (html-open 'tr)
-        (html-open 'td
-                   `((bgcolor . ,tbg))))
-      (display tstart)
-      (if tfg
-          (html-open 'font
-                     `((color . ,tfg))))
-      (if number
-	  (begin
-	     (output (html-container-number node engine)
-                     engine)
-	     (output nsep engine)))
+      ;; div wrapping the title
+      (html-open 'div
+                 `((class . ,(if class
+                                 (string-append class "-title")
+                                 (string-append "skribilo-" kind "-title")))
+                   (id . ,(string-canonicalize ident))
+                   (style . ,(style-declaration
+                              `((color . ,(and (html-color-spec? title-foreground)
+                                               title-foreground))
+                                (background-color . ,(and (html-color-spec? title-background)
+                                                          title-background)))))))
+      ;; title start string
+      (display title-start)
+      ;; section number if enabled
+      (when number
+        (output (html-container-number node engine)
+                engine)
+        (output number-separator engine))
+      ;; the title itself
       (output title engine)
-      (if tfg
-          (html-close 'font))
-      (display tstop)
-      (when (and (string? tbg) (> (string-length tbg) 0))
-        (html-close 'td)
-        (html-close 'tr)
-        (html-close 'table))
-      (html-close 'div)
-      ((html-markup-class "div") node engine))
-   (newline))
+      ;; title stop string
+      (display title-stop)
+      (html-close 'div)))
 
 ;*---------------------------------------------------------------------*/
 ;*    section ...  @label section@                                     */
