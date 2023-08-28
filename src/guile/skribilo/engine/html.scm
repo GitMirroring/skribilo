@@ -1683,39 +1683,21 @@ ignored, return #f."
 ;*    flush ...                                                        */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'flush
-   :options '(:side)
-   :before (lambda (node engine)
-	      (case (markup-option node :side)
-		 ((center)
-                  (html-open 'center
-                             `((class . ,(markup-class node)))))
-		 ((left)
-                  (html-open 'p
-                             `((class . ,(markup-class node))
-                               (style . "text-align:left;"))))
-		 ((right)
-                  (html-open 'table
-                             `((width . "100%")
-                               (cellpadding . "0")
-                               (cellspacing . "0")
-                               (border . "0")))
-                  (html-open 'tr)
-                  (html-open 'td
-                             '((align . "right"))))
-		 (else
-		  (skribe-error 'flush
-				"Invalid side"
-				(markup-option node :side)))))
-   :after (lambda (node engine)
-	     (case (markup-option node :side)
-		((center)
-                 (html-close 'center))
-		((right)
-                 (html-close 'td)
-                 (html-close 'tr)
-                 (html-close 'table))
-		((left)
-                 (html-close 'p)))))
+    :options '(:side)
+    :before (lambda (node engine)
+              (let ((text-align
+                     (case (markup-option node :side)
+                       ((left center right)
+                        (symbol->string (markup-option node :side)))
+                       (else
+                        (skribe-error 'flush
+				      "Invalid side"
+				      (markup-option node :side))))))
+                (html-open 'span
+                           `((class . ,(markup-class node))
+                             (style . ,(style-declaration
+                                        `((text-align . ,text-align))))))))
+    :after "</span>\n")
 
 ;*---------------------------------------------------------------------*/
 ;*    center ...                                                       */
