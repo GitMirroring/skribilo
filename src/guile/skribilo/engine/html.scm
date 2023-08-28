@@ -609,6 +609,24 @@ unspecified or #f values are ignored."
   (newline))
 
 ;*---------------------------------------------------------------------*/
+;*    style-declaration ...                                            */
+;*---------------------------------------------------------------------*/
+(define (style-declaration properties)
+  "Return a style declaration with PROPERTIES, an association list
+mapping property names to their values. Property names may be symbols
+or strings. Values may be strings or numbers. Properties with #f
+values are ignored. If PROPERTIES is empty or all of its elements were
+ignored, return #f."
+  (match (filter-map (match-lambda
+                       ((name . value)
+                        (and value
+                             (format #f "~a: ~a;" name value))))
+                     properties)
+    (() #f)
+    (serialized-properties
+     (string-join serialized-properties))))
+
+;*---------------------------------------------------------------------*/
 ;*    html-markup-class ...                                            */
 ;*---------------------------------------------------------------------*/
 (define (html-markup-class m)
