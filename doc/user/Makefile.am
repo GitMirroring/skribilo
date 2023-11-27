@@ -33,7 +33,7 @@ skrinfo_DATA = skribilo.info
 
 html_DATA = user.html user.sui
 nobase_dist_html_DATA =				\
-  lobster-1.4.otf junction.ttf			\
+  lobster-2.100.otf junction.ttf		\
   static/gears-down.png				\
   static/gears-up.png				\
   static/graphy.png				\
