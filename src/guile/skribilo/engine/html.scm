@@ -1083,8 +1083,10 @@ ignored, return #f."
 	       (when title (row title))
 	       ;; affiliation
 	       (when affiliation (row affiliation))
-	       ;; address
-	       (when address (for-each row address))
+	       ;; Output address only if it is a list. address could
+	       ;; be a markup object.
+	       (when (list? address)
+                 (for-each row address))
 	       ;; telephone
 	       (when phone (row phone))
 	       ;; email
