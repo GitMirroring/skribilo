@@ -1048,7 +1048,11 @@ ignored, return #f."
      (html-open 'div
                 `((style . ,(style-declaration
                              '((text-align . "center"))))))
-     (display (string-join authors ", "))
+     (display (string-join (map (lambda (author)
+                                  (with-output-to-string
+                                    (cut output author engine)))
+                                authors)
+                           ", "))
      (html-close 'div))))
 
 ;*---------------------------------------------------------------------*/
