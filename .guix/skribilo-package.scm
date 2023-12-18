@@ -1,6 +1,6 @@
 ;;; guix.scm  --  Build recipe for GNU Guix.
 ;;;
-;;; Copyright © 2020 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2020, 2023 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2023–2024 Arun Isaac <arunisaac@systemreboot.net>
 ;;;
 ;;; This file is part of Skribilo.
@@ -22,6 +22,14 @@
   #:use-module (gnu packages)
   #:use-module ((gnu packages autotools) #:select (autoconf automake))
   #:use-module ((gnu packages gettext) #:select (gnu-gettext))
+  #:use-module (gnu packages ghostscript)
+  #:use-module (gnu packages guile)
+  #:use-module ((gnu packages guile-xyz)
+                #:select (guile-lib guile-reader))
+  #:use-module (gnu packages imagemagick)
+  #:use-module (gnu packages lout)
+  #:use-module (gnu packages pkg-config)
+  #:use-module (gnu packages plotutils)
   #:use-module ((gnu packages skribilo) #:select (skribilo) #:prefix guix:)
   #:use-module ((guix build-system guile) #:select (%guile-build-system-modules))
   #:use-module (guix gexp)
@@ -41,11 +49,16 @@
                         #:select?
                         (or (git-predicate (dirname (current-source-directory)))
                             (const #t))))
-    (native-inputs
-     (modify-inputs (package-native-inputs guix:skribilo)
-       (prepend autoconf)
-       (prepend automake)
-       (prepend gnu-gettext)))))
+    (native-inputs (list autoconf automake gnu-gettext pkg-config))
+    (inputs (list guile-3.0
+                  imagemagick
+                  ghostscript ; for 'convert'
+                  ploticus
+                  lout))
+
+    ;; The 'skribilo' command needs them, and for people using Skribilo as a
+    ;; library, these inputs are needed as well.
+    (propagated-inputs (list guile-reader guile-lib))))
 
 (define with-guile-2.0
   (package-input-rewriting/spec `(("guile" . ,(const (S "guile@2.0"))))
