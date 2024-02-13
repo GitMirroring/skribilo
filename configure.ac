@@ -75,6 +75,16 @@ fi
 AM_CONDITIONAL([BUILD_GEMTEXT_READER],
   [test "x$have_srfi_171" == "xyes"])
 
+# Check for Guile-CommonMark, needed for the `commonmark' reader.
+GUILE_MODULE_AVAILABLE([have_commonmark], [(commonmark)])
+if test "x$have_commonmark" != "xyes"; then
+  AC_MSG_WARN([Guile-CommonMark needed by the `commonmark' reader is missing.])
+fi
+
+AM_CONDITIONAL([BUILD_COMMONMARK_READER],
+  [test "x$have_commonmark" == "xyes"])
+
+
 # Look for `convert', from ImageMagick.
 AC_PATH_PROG([CONVERT], [convert])
 if test "x$CONVERT" == "x"; then

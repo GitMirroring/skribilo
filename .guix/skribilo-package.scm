@@ -1,6 +1,6 @@
 ;;; guix.scm  --  Build recipe for GNU Guix.
 ;;;
-;;; Copyright © 2020, 2023 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2020, 2023–2024 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2023–2024 Arun Isaac <arunisaac@systemreboot.net>
 ;;;
 ;;; This file is part of Skribilo.
@@ -24,7 +24,7 @@
   #:use-module (gnu packages ghostscript)
   #:use-module (gnu packages guile)
   #:use-module ((gnu packages guile-xyz)
-                #:select (guile-lib guile-reader))
+                #:select (guile-commonmark guile-lib guile-reader))
   #:use-module (gnu packages imagemagick)
   #:use-module (gnu packages lout)
   #:use-module (gnu packages pkg-config)
@@ -55,7 +55,9 @@
 
     ;; The 'skribilo' command needs them, and for people using Skribilo as a
     ;; library, these inputs are needed as well.
-    (propagated-inputs (list guile-reader guile-lib))))
+    (propagated-inputs (list guile-reader
+                             guile-lib
+                             guile-commonmark))))
 
 (define with-guile-2.0
   (package-input-rewriting/spec `(("guile" . ,(const guile-2.0)))
@@ -78,7 +80,13 @@
 
 (define-public skribilo/guile-2.0
   (package
-    (inherit (with-guile-2.0 skribilo))
+    (inherit (with-guile-2.0
+              (package
+                (inherit skribilo)
+                (propagated-inputs
+                 (modify-inputs (package-propagated-inputs skribilo)
+                   ;; XXX: Guile-CommonMark has test failures on Guile 2.0.
+                   (delete "guile-commonmark"))))))
     (name "guile2.0-skribilo")
     (inputs
      (modify-inputs (package-inputs skribilo)

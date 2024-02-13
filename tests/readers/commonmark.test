@@ -1,0 +1,147 @@
+;;; Exercise CommonMark reader.                  -*- Scheme -*-
+;;;
+;;; Copyright © 2024 Ludovic Courtès <ludo@gnu.org>
+;;;
+;;; This file is part of Skribilo.
+;;;
+;;; Skribilo is free software; you can redistribute it and/or modify it
+;;; under the terms of the GNU Lesser General Public License as published by
+;;; the Free Software Foundation; either version 3 of the License, or (at
+;;; your option) any later version.
+;;;
+;;; Skribilo is distributed in the hope that it will be useful, but
+;;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
+;;; General Public License for more details.
+;;;
+;;; You should have received a copy of the GNU Lesser General Public License
+;;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+(define-module (tests commonmark)
+  #:use-module (ice-9 match)
+  #:use-module (skribilo reader)
+  #:use-module (srfi srfi-64))
+
+(unless (false-if-exception (resolve-interface '(commonmark)))
+  (exit 77))
+
+(define make-commonmark-reader
+  (reader:make (lookup-reader 'commonmark)))
+
+
+(test-begin "commonmark")
+
+(test-equal "document with headers"
+  '(document #:title "CommonMark is cool"
+             #:author (list (author #:name "Charlie Doe"))
+             (chapter #:title (list "First")
+                      (paragraph "Hi there" "!"))
+             (chapter #:title (list "Second")
+                      (paragraph "Ooh.")
+                      (section #:title (list "Sub One")
+                               (paragraph "Something here."))
+                      (section #:title (list "Sub Two")
+                               (paragraph "Not much to add."))))
+  (call-with-input-string "\
+title: CommonMark is cool
+author: Charlie Doe
+---
+
+# First
+
+Hi there!
+
+# Second
+
+Ooh.
+
+## Sub One
+Something here.
+
+## Sub Two
+Not much to add."
+    (make-commonmark-reader)))
+
+(test-equal "document without headers"
+  '(document #:title (list "Title coming from first chapter")
+             #:author (list)
+             (paragraph "Hi there" "!")
+             (chapter #:title (list "Section becomes a chapter")
+                      (section #:title (list "Subsection")
+                               (paragraph "Something here.")))
+             (chapter #:title (list "Conclusion")
+                      (paragraph "Done.")))
+  (call-with-input-string "
+# Title coming from first chapter
+
+Hi there!
+
+## Section becomes a chapter
+
+### Subsection
+Something here.
+
+## Conclusion
+Done."
+    (make-commonmark-reader)))
+
+(test-equal "ornaments"
+  '(document #:title (list "The Title")
+             #:author (list)
+
+             (paragraph "Here's a " (bold "bullet") " list:")
+             (itemize
+              (item "one")
+              (item "two"))
+             (paragraph "Here's a " (emph "numbered") " list:")
+             (enumerate
+              (item "one")
+              (item "two")))
+  (call-with-input-string "
+# The Title
+
+Here's a **bullet** list:
+
+  - one
+  - two
+
+Here's a *numbered* list:
+
+  1. one
+  2. two"
+    (make-commonmark-reader)))
+
+(test-equal "references and images"
+  '(document #:title (list "The Title")
+             #:author (list)
+
+             (paragraph "The " (ref #:url "https://guix.gnu.org"
+                                    #:text (list (emph "awesome") " Guix"))
+                        " project.")
+             (paragraph (image #:url "https://guix.gnu.org/favicon.ico"
+                               #:text "The favicon.")))
+  (call-with-input-string "
+# The Title
+
+The [_awesome_ Guix](https://guix.gnu.org) project.
+
+![The favicon.](https://guix.gnu.org/favicon.ico)"
+    (make-commonmark-reader)))
+
+(test-equal "code block"
+  '(document #:title (list "The Title")
+             #:author (list)
+             (pre (prog "int main () {
+  return 0;
+}")))
+  (call-with-input-string "
+# The Title
+
+```c
+int main () {
+  return 0;
+}
+```"
+    (make-commonmark-reader)))
+
+(test-end)

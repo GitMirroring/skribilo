@@ -1,7 +1,7 @@
 ;;; syntax.skb  --  The Skribilo syntaxes.
-;;; -*- coding: iso-8859-1 -*-
+;;; -*- coding: utf-8 -*-
 ;;;
-;;; Copyright 2008, 2009  Ludovic Court�s <ludo@gnu.org>
+;;; Copyright 2008, 2009, 2024  Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright 2001, 2002, 2003, 2004  Manuel Serrano
 ;;;
 ;;;
@@ -132,12 +132,66 @@ specifying a width:])
                   in the output document (such as HTML column ,(code "\"0*\"")
                   specification). Note that this way of specifying width
                   is strictly unportable.])))))
-   
+
+   (section :title [The CommonMark Syntax]
+            :ident "commonmark-syntax"
+
+      (p [While the Skribe syntax is super expressive, you may instead prefer
+something less expressive but more lightweight.  The ,(tt [commonmark]) reader
+addresses this needs: it reads inputs that follows the ,(ref :url
+"https://commonmark.org/" :text [CommonMark syntax])—essentially a subset of
+what you may know as Markdown—and produces a document from there.  The simplest
+CommonMark input looks like this:]
+
+        (example :legend [Example input using the CommonMark syntax.]
+	  (tt (pre "\
+# Title of the Document
+
+Here is an introduction.
+
+## First Chapter
+
+This is the first chapter, and here’s a hyperlink to the [CommonMark
+spec](https://commonmark.org).
+
+## Second Chapter
+
+Well, you get the idea."))))
+
+       (p [Alternatively, the input can start with metadata headers in the
+style of ,(ref :url "https://dthompson.us/projects/haunt.html" :text [Haunt]),
+which is useful for instance if you’d like to specify the document author(s):]
+
+         (example :legend [CommonMark input with metadata headers.]
+	   (tt (pre "\
+title: Title of the Document
+author: Charlie
+---
+
+Here goes the introduction.
+
+# First Chapter
+
+This is the first chapter.
+
+## Sub-section
+
+… and this is a subsection."))))
+
+       (p [Once you have a CommonMark document, pass ,(tt [--reader=commonmark])
+or ,(tt [-R commonmark]) to ,(tt [skribilo]).  For example, here is how you would render
+a CommonMark document as PDF ,(it [via]) LaTeX:]
+
+         (disp :verb #t [
+skribilo -R commonmark -t latex document.md \\
+  | pdflatex])
+
+         [The resulting file is ,(tt [texput.pdf]) by default.]))
 
    (section :title [The Outline Syntax]
             :ident "outline-syntax"
       
-      (p [Alternatively, Skribilo allows documents to be written in a
+      (p [You may also write documents in
 plain text format, with almost no markup.  Instead, conventions borrowed
 from ,(ref :text [Emacs' Outline Mode] :url
 "http://www.gnu.org/software/emacs/manual/html_node/emacs/Outline-Mode.html")
