@@ -19,7 +19,6 @@
 ;;; along with Skribilo.  If not, see <http://www.gnu.org/licenses/>.
 
 (define-module (skribilo-package)
-  #:use-module (gnu packages)
   #:use-module ((gnu packages autotools) #:select (autoconf automake))
   #:use-module ((gnu packages gettext) #:select (gnu-gettext))
   #:use-module (gnu packages ghostscript)
@@ -37,8 +36,6 @@
   #:use-module (guix packages)
   #:use-module (guix profiles)
   #:use-module (guix utils))
-
-(define S specification->package)
 
 (define-public skribilo
   (package
@@ -61,11 +58,11 @@
     (propagated-inputs (list guile-reader guile-lib))))
 
 (define with-guile-2.0
-  (package-input-rewriting/spec `(("guile" . ,(const (S "guile@2.0"))))
+  (package-input-rewriting/spec `(("guile" . ,(const guile-2.0)))
                                 #:deep? #f))
 
 (define with-guile-2.2
-  (package-input-rewriting/spec `(("guile" . ,(const (S "guile@2.2"))))
+  (package-input-rewriting/spec `(("guile" . ,(const guile-2.2)))
                                 #:deep? #f))
 
 (define-public skribilo/guile-2.2
@@ -75,7 +72,7 @@
     ;; Arrange to not trigger a rebuild of Automake & co.
     (inputs
      (modify-inputs (package-inputs skribilo)
-       (replace "guile" (S "guile@2.2"))))
+       (replace "guile" guile-2.2)))
     (native-inputs
      (package-native-inputs skribilo))))
 
@@ -85,7 +82,7 @@
     (name "guile2.0-skribilo")
     (inputs
      (modify-inputs (package-inputs skribilo)
-       (replace "guile" (S "guile@2.0"))))
+       (replace "guile" guile-2.0)))
     (native-inputs
      (package-native-inputs skribilo))))
 
