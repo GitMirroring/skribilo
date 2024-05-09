@@ -74,7 +74,17 @@ Development
 A copy of the source code repository can be obtained with Git
 (http://git.or.cz/), using the following incantation:
 
-  git clone git://git.sv.gnu.org/skribilo.git
+  git clone https://git.sv.gnu.org/git/skribilo.git
+
+To authenticate the code, when you first fetch it, run:
+
+  guix git authenticate \
+    adc9aa9600e27e68b48fa8d1477b9f448f0e3490 \
+    "7F73 0343 F2F0 9F3C 77BF  79D3 2E25 EE8B 6180 2BB3"
+
+Subsequent runs of `git pull' or `git push' will automatically run `guix
+git authenticate' to authenticate what you pull and what you're about to
+push.
 
 You can then send patches to the <skribilo-users@nongnu.org> mailing
 list!
