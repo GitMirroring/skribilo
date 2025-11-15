@@ -1,4 +1,5 @@
-(use-modules (skribilo package slide))
+(use-modules ((skribilo ast) #:select search-down)
+	     (skribilo package slide))
 
 (document :title (color :fg "red" (sf "Skribilo Slides"))
    :author (author :name (it [Bob Smith])
