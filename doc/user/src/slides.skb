@@ -1,4 +1,4 @@
-(use-modules ((skribilo ast) #:select search-down)
+(use-modules ((skribilo ast) #:select (ast-document is-markup? markup-option search-down))
 	     (skribilo package slide))
 
 (document :title (color :fg "red" (sf "Skribilo Slides"))
