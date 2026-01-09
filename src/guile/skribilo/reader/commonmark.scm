@@ -1,6 +1,6 @@
 ;;; commonmark.scm  --  Reader for the CommonMark syntax.
 ;;;
-;;; Copyright © 2024 Ludovic Courtès <ludo@gnu.org>
+;;; Copyright © 2024-2026 Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright © 2015 David Thompson <davet@gnu.org>
 ;;;
 ;;;
@@ -26,6 +26,7 @@
   #:use-module (skribilo utils syntax)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-11)
+  #:use-module (srfi srfi-19)
   #:use-module (srfi srfi-34)
   #:use-module (srfi srfi-35)
   #:use-module (ice-9 match)
@@ -204,6 +205,13 @@ section, and so on."
                          sexp)))))
        `(document
          #:title ,title
+         #:date ,(and=> (assoc-ref headers 'date)
+                        (lambda (str)
+                          (or (false-if-exception
+                               (string->date str "~Y-~m-~d ~H:~M:~S"))
+                              (false-if-exception
+                               (string->date str "~Y-~m-~d ~H:~M"))
+                              (string->date str "~Y-~m-~d"))))
          #:author (list ,@(map (lambda (name)
                                  `(author #:name ,name))
                                (if (assoc-ref headers 'author)
