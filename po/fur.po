@@ -7,93 +7,88 @@ msgid ""
 msgstr ""
 "Project-Id-Version: skribilo 0.9.2.64\n"
 "Report-Msgid-Bugs-To: ludo@gnu.org\n"
-"POT-Creation-Date: 2015-06-21 22:21+0200\n"
+"POT-Creation-Date: 2026-01-11 01:55+0000\n"
 "PO-Revision-Date: 2018-03-21 13:40+0100\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <f.t.public@gmail.com>\n"
 "Language: fur\n"
-"X-Bugs: Report translation errors to the Language-Team address.\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 "X-Generator: Poedit 2.0.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/guile/skribilo/utils/syntax.scm:55
+#: src/guile/skribilo/utils/syntax.scm:57
 msgid "unexpected character in Skribilo module"
 msgstr "caratar inspietât tal modul Skribilo"
 
 #. TRANSLATORS: The next few msgids are fragments of
 #. bibliography items.
-#: src/guile/skribilo/biblio/template.scm:153
-#: src/guile/skribilo/biblio/template.scm:213
+#: src/guile/skribilo/biblio/template.scm:146
+#: src/guile/skribilo/biblio/template.scm:206
 msgid "Technical Report"
 msgstr "Segnalazion tecniche"
 
-#: src/guile/skribilo/biblio/template.scm:160
-#: src/guile/skribilo/biblio/template.scm:166
-#: src/guile/skribilo/biblio/template.scm:182
+#: src/guile/skribilo/biblio/template.scm:153
+#: src/guile/skribilo/biblio/template.scm:159
+#: src/guile/skribilo/biblio/template.scm:175
 msgid "In "
 msgstr "In "
 
-#: src/guile/skribilo/biblio/template.scm:183
+#: src/guile/skribilo/biblio/template.scm:176
 msgid "editor"
 msgstr "editôr"
 
-#: src/guile/skribilo/biblio/template.scm:184
+#: src/guile/skribilo/biblio/template.scm:177
 msgid "Chapter "
 msgstr "Cjapitul "
 
-#: src/guile/skribilo/biblio/template.scm:189
+#: src/guile/skribilo/biblio/template.scm:182
 msgid "PhD Thesis"
 msgstr "Tesi di dotorât"
 
-#: src/guile/skribilo/ast.scm:139
+#: src/guile/skribilo/ast.scm:140
 #, scheme-format
 msgid "orphan node: ~a~%"
 msgstr "grop vuarfin: ~a~%"
 
-#: src/guile/skribilo/ast.scm:146
+#: src/guile/skribilo/ast.scm:147
 #, scheme-format
 msgid "cycle found in AST: ~a~%"
 msgstr "cicli cjatât in AST: ~a~%"
 
-#: src/guile/skribilo/ast.scm:153
+#: src/guile/skribilo/ast.scm:154
 #, scheme-format
 msgid "~a: unknown markup option for '~a'~%"
 msgstr "~a: opzion di etichetament no cognossude par '~a'~%"
 
-#: src/guile/skribilo/ast.scm:161
+#: src/guile/skribilo/ast.scm:162
 #, scheme-format
 msgid "'~a' (~a): markup identifier already bound~%"
 msgstr "'~a' (~a): identificadôr di etichetament za leât~%"
 
-#: src/guile/skribilo/ast.scm:169
+#: src/guile/skribilo/ast.scm:170
 #, scheme-format
 msgid "undefined AST error: ~a~%"
 msgstr "erôr AST indefinît: ~a~%"
 
-#: src/guile/skribilo/biblio.scm:111
+#: src/guile/skribilo/biblio.scm:101
 #, scheme-format
 msgid "~a:~a:~a: invalid bibliography entry: ~a~%"
 msgstr "~a:~a:~a: vôs bibliografiche no valide: ~a~%"
 
-#: src/guile/skribilo/biblio.scm:114
+#: src/guile/skribilo/biblio.scm:104
 #, scheme-format
 msgid "invalid bibliography entry: ~a~%"
 msgstr "vôs bibliografiche no valide: ~a~%"
 
-#: src/guile/skribilo/biblio.scm:118
-#, scheme-format
-msgid "invalid bibliography entry template: '~a', in '~a'~%"
-msgstr "model vôs bibliografiche no valit: '~a', in '~a'~%"
-
-#: src/guile/skribilo/biblio.scm:123
+#: src/guile/skribilo/biblio.scm:108
 #, scheme-format
 msgid "invalid bibliography entry s-exp: '~a'~%"
 msgstr "espression simboliche de vôs bibliografiche no valide: '~a'~%"
 
-#: src/guile/skribilo/biblio.scm:127
+#: src/guile/skribilo/biblio.scm:112
 #, scheme-format
 msgid "undefined bibliography error: ~a~%"
 msgstr "erôr bibliografic indefinît: ~a~%"
@@ -105,8 +100,11 @@ msgstr "La olme de pile des clamadis no je disponibile.~%"
 
 #: src/guile/skribilo/condition.scm:143
 #, scheme-format
-msgid "Use 'GUILE=\"guile --debug\" skribilo ...' for a detailed stack trace.~%"
-msgstr "Dopre 'GUILE=\"guile --debug\" skribilo ...' par vê une olme de pile detaiade.~%"
+msgid ""
+"Use 'GUILE=\"guile --debug\" skribilo ...' for a detailed stack trace.~%"
+msgstr ""
+"Dopre 'GUILE=\"guile --debug\" skribilo ...' par vê une olme de pile "
+"detaiade.~%"
 
 #: src/guile/skribilo/condition.scm:163
 #, scheme-format
@@ -153,12 +151,12 @@ msgstr "erôr skribilo indefinît: ~S~%"
 msgid "unexpected error condition: ~A~%"
 msgstr "condizion di erôr inspietade: ~A~%"
 
-#: src/guile/skribilo/engine.scm:74
+#: src/guile/skribilo/engine.scm:75
 #, scheme-format
 msgid "unknown engine `~a'~%"
 msgstr "motôr `~a' no cognossût~%"
 
-#: src/guile/skribilo/engine.scm:79
+#: src/guile/skribilo/engine.scm:80
 #, scheme-format
 msgid "undefined engine error: ~A~%"
 msgstr "erôr motôr indefinît: ~A~%"
@@ -168,17 +166,17 @@ msgstr "erôr motôr indefinît: ~A~%"
 msgid "the-index: char offset '~A' out of bounds~%"
 msgstr "the-index: sfasament dai caratars '~A' fûr dai limits~%"
 
-#: src/guile/skribilo/source.scm:70
+#: src/guile/skribilo/source.scm:69
 #, scheme-format
 msgid "source language '~a' does not have an extractor~%"
 msgstr "la lenghe sorzint '~a' no à un estratôr~%"
 
-#: src/guile/skribilo/source.scm:75
+#: src/guile/skribilo/source.scm:74
 #, scheme-format
 msgid "source definition of '~a' in language '~a' not found~%"
 msgstr "definizion sorzint di '~a' te lenghe '~a' no cjatade~%"
 
-#: src/guile/skribilo/source.scm:81
+#: src/guile/skribilo/source.scm:80
 #, scheme-format
 msgid "undefined source error: ~A~%"
 msgstr "erôr sorzint indefinît: ~A~%"
@@ -193,47 +191,53 @@ msgstr "forme di SUI no valide: ~A~%"
 msgid "undefined SUI error: ~A~%"
 msgstr "erôr SUI indefinît: ~A~%"
 
-#: src/guile/skribilo/verify.scm:75
+#: src/guile/skribilo/verify.scm:74
 #, scheme-format
 msgid "option '~a' of markup '~a' not supported by engine '~a'~%"
 msgstr "la opzion '~a' de etichetament '~a' no je supuartade dal motôr '~a'~%"
 
-#: src/guile/skribilo/verify.scm:82
+#: src/guile/skribilo/verify.scm:81
 #, scheme-format
 msgid "undefined verify error: ~a~%"
 msgstr "erôr di verifiche indefinît: ~a~%"
 
-#: src/guile/skribilo/engine/lout.scm:2425
-#: src/guile/skribilo/engine/info.scm:809
+#: src/guile/skribilo/engine/lout.scm:2439
+#: src/guile/skribilo/engine/info.scm:838
 msgid "image URLs are not supported"
 msgstr "i URL des imagjins no son supuartâts"
 
-#: src/guile/skribilo/engine/info.scm:177
+#: src/guile/skribilo/engine/info.scm:199
 #, scheme-format
 msgid "Info node title '~A' already used"
 msgstr "Titul dal grop Info '~A' za doprât"
 
-#: src/guile/skribilo/engine/info.scm:180
+#: src/guile/skribilo/engine/info.scm:202
 msgid "previous occurrence was here"
 msgstr "il câs precedent al jere achì"
 
-#: src/guile/skribilo/package/base.scm:538
-msgid "file, start/stop, and definition cannot be combined with body"
+#. TRANSLATORS: 'file', 'start', 'stop', and
+#. 'definition' denote parameter names; they must not
+#. be translated.  Likewise for the 3 subsequent
+#. strings.
+#: src/guile/skribilo/package/base.scm:548
+#, fuzzy
+msgid "file, start/stop, and definitioncannot be combined with body"
 msgstr "file, tache/ferme e definizion no puedin jessi cumbinâts cul cuarp"
 
-#: src/guile/skribilo/package/base.scm:543
+#: src/guile/skribilo/package/base.scm:553
 msgid "start/stop are exclusive with a definition"
 msgstr "tache/ferme a son esclusîfs cuntune definizion"
 
-#: src/guile/skribilo/package/base.scm:547
-msgid "start/stop and definition require a file specification"
+#: src/guile/skribilo/package/base.scm:557
+#, fuzzy
+msgid "start/stop and definition require afile specification"
 msgstr "tache/ferme e definizion a domandin une specifiche di file"
 
-#: src/guile/skribilo/package/base.scm:552
+#: src/guile/skribilo/package/base.scm:562
 msgid "definition requires a language specification"
 msgstr "la definizion e domande une specifiche di lenghe"
 
-#: src/guile/skribilo/package/base.scm:562
+#: src/guile/skribilo/package/base.scm:572
 msgid "start line is greater than stop line"
 msgstr "rie di inizi/tache e je plui grande de rie di fin/ferme"
 
@@ -263,102 +267,147 @@ msgstr "Ûs: skribilo [OPZIONS] [INPUT]"
 msgid ""
 "\n"
 "Process Skribilo document from file INPUT (or standard input) using the\n"
-"specified reader syntax or the 'skribe' syntax, and produce its output using\n"
+"specified reader syntax or the 'skribe' syntax, and produce its output "
+"using\n"
 "the specified engine or the 'html' engine.\n"
 msgstr ""
 "\n"
 "Elabore il document Skribilo dal file INPUT (o standard input) doprant la\n"
-"sintassi dal letôr specificât o la sintassi 'skribe' e prodûs la sô jessude doprant\n"
+"sintassi dal letôr specificât o la sintassi 'skribe' e prodûs la sô jessude "
+"doprant\n"
 "il motôr specificât o il motôr 'html'.\n"
 
 #: src/guile/skribilo.scm:72
+#, fuzzy
 msgid ""
-"  -R, --reader=READER    use READER to parse the input file;\n"
+"-R, --reader=READER    use READER to parse the input file;\n"
 "                         e.g., 'skribe' (default) or 'outline'\n"
 msgstr ""
 "  -R, --reader=LETÔR    dopre LETÔR par analizâ il file di jentrade;\n"
 "                         p.e. 'skribe' (predefinît) o 'outline'\n"
 
 #: src/guile/skribilo.scm:75
-msgid "  -t, --target=ENGINE    use ENGINE as the output engine; e.g., 'html'\n"
-msgstr "  -t, --target=MOTÔR    dopre MOTÔR come motôr di jessude; p.e. 'html'\n"
+#, fuzzy
+msgid "-t, --target=ENGINE    use ENGINE as the output engine; e.g., 'html'\n"
+msgstr ""
+"  -t, --target=MOTÔR    dopre MOTÔR come motôr di jessude; p.e. 'html'\n"
 
 #: src/guile/skribilo.scm:77
-msgid "  -c, --custom=C=VAL     use VAL as the value of ENGINE's custom C\n"
-msgstr "  -c, --custom=C=VAL     dopre VAL come valôr dal C personalizât di MOTÔR\n"
+#, fuzzy
+msgid "-c, --custom=C=VAL     use VAL as the value of ENGINE's custom C\n"
+msgstr ""
+"  -c, --custom=C=VAL     dopre VAL come valôr dal C personalizât di MOTÔR\n"
 
 #: src/guile/skribilo.scm:79
-msgid "  -o, --output=FILE      write output to FILE\n"
+#, fuzzy
+msgid "-o, --output=FILE      write output to FILE\n"
 msgstr "  -o, --output=FILE      scrîf la jessude su FILE\n"
 
 #: src/guile/skribilo.scm:81
-msgid "      --compat=COMPAT    use COMPAT as the compatibility layer; e.g., 'skribe'\n"
-msgstr "      --compat=COMPAT    dopre COMPAT come strât di compatibilitât; p.e. 'skribe'\n"
+#, fuzzy
+msgid ""
+"--compat=COMPAT    use COMPAT as the compatibility layer; e.g., 'skribe'\n"
+msgstr ""
+"      --compat=COMPAT    dopre COMPAT come strât di compatibilitât; p.e. "
+"'skribe'\n"
 
 #: src/guile/skribilo.scm:84
-msgid "  -I, --doc-path=DIR     prepend DIR to the document include path\n"
-msgstr "  -I, --doc-path=DIR     met denant DIR al percors di inclusion dal document\n"
+#, fuzzy
+msgid "-I, --doc-path=DIR     prepend DIR to the document include path\n"
+msgstr ""
+"  -I, --doc-path=DIR     met denant DIR al percors di inclusion dal "
+"document\n"
 
 #: src/guile/skribilo.scm:86
-msgid "  -B, --bib-path=DIR     prepend DIR to the bibliography include path\n"
-msgstr "  -B, --bib-path=DIR     met denant DIR al percors di inclusion de bibliografie\n"
+#, fuzzy
+msgid "-B, --bib-path=DIR     prepend DIR to the bibliography include path\n"
+msgstr ""
+"  -B, --bib-path=DIR     met denant DIR al percors di inclusion de "
+"bibliografie\n"
 
 #: src/guile/skribilo.scm:88
-msgid "  -S, --source-path=DIR  prepend DIR to the source include path\n"
-msgstr "  -S, --source-path=DIR  met denant DIR al percors di inclusion de sorzint\n"
+#, fuzzy
+msgid "-S, --source-path=DIR  prepend DIR to the source include path\n"
+msgstr ""
+"  -S, --source-path=DIR  met denant DIR al percors di inclusion de sorzint\n"
 
 #: src/guile/skribilo.scm:90
-msgid "  -P, --image-path=DIR   prepend DIR to the image include path\n"
-msgstr "  -P, --image-path=DIR   met denant DIR al percors di inclusion de imagjin\n"
+#, fuzzy
+msgid "-P, --image-path=DIR   prepend DIR to the image include path\n"
+msgstr ""
+"  -P, --image-path=DIR   met denant DIR al percors di inclusion de imagjin\n"
 
 #: src/guile/skribilo.scm:92
-msgid "  -U, --sui-path=DIR     prepend DIR to the Skribe URL Index (SUI) search path\n"
-msgstr "  -U, --sui-path=DIR     met denant DIR al percors de ricercje dal indiç dai URL di Skribe (SUI)\n"
+#, fuzzy
+msgid ""
+"-U, --sui-path=DIR     prepend DIR to the Skribe URL Index (SUI) search "
+"path\n"
+msgstr ""
+"  -U, --sui-path=DIR     met denant DIR al percors de ricercje dal indiç dai "
+"URL di Skribe (SUI)\n"
 
 #: src/guile/skribilo.scm:95
-msgid "  -b, --base=BASE        strip BASE from all hyperlinks ('html' engine)\n"
-msgstr "  -b, --base=BASE        tire fûr BASE di ducj i colegaments ipertestuâi (motôr 'html')\n"
+#, fuzzy
+msgid "-b, --base=BASE        strip BASE from all hyperlinks ('html' engine)\n"
+msgstr ""
+"  -b, --base=BASE        tire fûr BASE di ducj i colegaments ipertestuâi "
+"(motôr 'html')\n"
 
 #: src/guile/skribilo.scm:97
+#, fuzzy
 msgid ""
-"  -e, --eval=EXPR        prepend EXPR to the list of expressions to be\n"
+"-e, --eval=EXPR        prepend EXPR to the list of expressions to be\n"
 "                         evaluted before the input file is processed\n"
 msgstr ""
 "  -e, --eval=EXPR        met denant EXPR ae liste des espressions che si\n"
-"                         à di valutâ prime che il file di jentrade al sedi elaborât\n"
+"                         à di valutâ prime che il file di jentrade al sedi "
+"elaborât\n"
 
 #: src/guile/skribilo.scm:100
-msgid "  -p, --preload=FILE     preload FILE before processing the input file\n"
-msgstr "  -p, --preload=FILE     pre-cjarie FILE prime di elaborâ il file di jentrade\n"
+#, fuzzy
+msgid "-p, --preload=FILE     preload FILE before processing the input file\n"
+msgstr ""
+"  -p, --preload=FILE     pre-cjarie FILE prime di elaborâ il file di "
+"jentrade\n"
 
 #: src/guile/skribilo.scm:103
-msgid "  -v, --verbose[=LEVEL]  be verbose, unless LEVEL is 0\n"
+#, fuzzy
+msgid "-v, --verbose[=LEVEL]  be verbose, unless LEVEL is 0\n"
 msgstr "  -v, --verbose[=NIVEL]  jessi prolìs, a mancul che NIVEL nol sedi 0\n"
 
 #: src/guile/skribilo.scm:105
-msgid "  -w, --warning[=LEVEL]  issue warnings, unless LEVEL is 0\n"
-msgstr "  -w, --warning[=NIVEL]  bute fûr i avertiments, a mancul che NIVEL nol sedi 0\n"
+#, fuzzy
+msgid "-w, --warning[=LEVEL]  issue warnings, unless LEVEL is 0\n"
+msgstr ""
+"  -w, --warning[=NIVEL]  bute fûr i avertiments, a mancul che NIVEL nol sedi "
+"0\n"
 
 #: src/guile/skribilo.scm:107
+#, fuzzy
 msgid ""
-"  -g, --debug[=ARG]      issue debugging output, unless ARG is 0; if ARG is\n"
+"-g, --debug[=ARG]      issue debugging output, unless ARG is 0; if ARG is\n"
 "                         not a number, it is interpreted as a symbol to be\n"
 "                         watched\n"
 msgstr ""
-"  -g, --debug[=ARG]      bute fûr la jessude dal debug, a mancul che ARG nol sedi 0; se ARG\n"
-"                         nol è un numar, al ven interpretât come simbul che si scugne\n"
+"  -g, --debug[=ARG]      bute fûr la jessude dal debug, a mancul che ARG nol "
+"sedi 0; se ARG\n"
+"                         nol è un numar, al ven interpretât come simbul che "
+"si scugne\n"
 "                         tignî di voli\n"
 
 #: src/guile/skribilo.scm:111
-msgid "      --no-color         disable colored debugging output\n"
+#, fuzzy
+msgid "--no-color         disable colored debugging output\n"
 msgstr "      --no-color         disabilite la jessude di debug colorade\n"
 
 #: src/guile/skribilo.scm:114
-msgid "  -h, --help             display this help text and exit\n"
+#, fuzzy
+msgid "-h, --help             display this help text and exit\n"
 msgstr "  -h, --help             mostre chest jutori e jes\n"
 
 #: src/guile/skribilo.scm:116
-msgid "  -V, --version          display version information and exit\n"
+#, fuzzy
+msgid "-V, --version          display version information and exit\n"
 msgstr "  -V, --version          mostre lis informazions de version e jes\n"
 
 #: src/guile/skribilo.scm:119
@@ -380,3 +429,7 @@ msgstr "~a: valôr personalizât no valit"
 #, scheme-format
 msgid "warning: failed to install locale: ~a~%"
 msgstr "atenzion: no si è rivâts a instalâ la localizazion: ~a~%"
+
+#, scheme-format
+#~ msgid "invalid bibliography entry template: '~a', in '~a'~%"
+#~ msgstr "model vôs bibliografiche no valit: '~a', in '~a'~%"

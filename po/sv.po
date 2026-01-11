@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: skribilo 0.9.2.64\n"
 "Report-Msgid-Bugs-To: ludo@gnu.org\n"
-"POT-Creation-Date: 2015-06-21 22:21+0200\n"
+"POT-Creation-Date: 2026-01-11 01:55+0000\n"
 "PO-Revision-Date: 2016-03-28 18:30+0200\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -17,81 +17,76 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.7.1\n"
 
-#: src/guile/skribilo/utils/syntax.scm:55
+#: src/guile/skribilo/utils/syntax.scm:57
 msgid "unexpected character in Skribilo module"
 msgstr "oväntat tecken i Skribilo-modul"
 
 #. TRANSLATORS: The next few msgids are fragments of
 #. bibliography items.
-#: src/guile/skribilo/biblio/template.scm:153
-#: src/guile/skribilo/biblio/template.scm:213
+#: src/guile/skribilo/biblio/template.scm:146
+#: src/guile/skribilo/biblio/template.scm:206
 msgid "Technical Report"
 msgstr "Teknisk rapport"
 
-#: src/guile/skribilo/biblio/template.scm:160
-#: src/guile/skribilo/biblio/template.scm:166
-#: src/guile/skribilo/biblio/template.scm:182
+#: src/guile/skribilo/biblio/template.scm:153
+#: src/guile/skribilo/biblio/template.scm:159
+#: src/guile/skribilo/biblio/template.scm:175
 msgid "In "
 msgstr "I "
 
-#: src/guile/skribilo/biblio/template.scm:183
+#: src/guile/skribilo/biblio/template.scm:176
 msgid "editor"
 msgstr "redigerare"
 
-#: src/guile/skribilo/biblio/template.scm:184
+#: src/guile/skribilo/biblio/template.scm:177
 msgid "Chapter "
 msgstr "Kapitel "
 
-#: src/guile/skribilo/biblio/template.scm:189
+#: src/guile/skribilo/biblio/template.scm:182
 msgid "PhD Thesis"
 msgstr "Doktorsavhandling"
 
-#: src/guile/skribilo/ast.scm:139
+#: src/guile/skribilo/ast.scm:140
 #, scheme-format
 msgid "orphan node: ~a~%"
 msgstr "föräldralös nod: ~a~%"
 
-#: src/guile/skribilo/ast.scm:146
+#: src/guile/skribilo/ast.scm:147
 #, scheme-format
 msgid "cycle found in AST: ~a~%"
 msgstr "cykel hittad i AST: ~a~%"
 
-#: src/guile/skribilo/ast.scm:153
+#: src/guile/skribilo/ast.scm:154
 #, scheme-format
 msgid "~a: unknown markup option for '~a'~%"
 msgstr "~a: okänd markup-flagga för ”~a”~%"
 
-#: src/guile/skribilo/ast.scm:161
+#: src/guile/skribilo/ast.scm:162
 #, scheme-format
 msgid "'~a' (~a): markup identifier already bound~%"
 msgstr "”~a” (~a): markup-identifierare redan bunden~%"
 
-#: src/guile/skribilo/ast.scm:169
+#: src/guile/skribilo/ast.scm:170
 #, scheme-format
 msgid "undefined AST error: ~a~%"
 msgstr "odefinierat AST-fel: ~a~%"
 
-#: src/guile/skribilo/biblio.scm:111
+#: src/guile/skribilo/biblio.scm:101
 #, scheme-format
 msgid "~a:~a:~a: invalid bibliography entry: ~a~%"
 msgstr "~a:~a:~a: ogiltig bibliografipost: ~a~%"
 
-#: src/guile/skribilo/biblio.scm:114
+#: src/guile/skribilo/biblio.scm:104
 #, scheme-format
 msgid "invalid bibliography entry: ~a~%"
 msgstr "ogiltig bibliografipost: ~a~%"
 
-#: src/guile/skribilo/biblio.scm:118
-#, scheme-format
-msgid "invalid bibliography entry template: '~a', in '~a'~%"
-msgstr "ogiltig mall för bibliografipost: ”~a”, i ”~a”~%"
-
-#: src/guile/skribilo/biblio.scm:123
+#: src/guile/skribilo/biblio.scm:108
 #, scheme-format
 msgid "invalid bibliography entry s-exp: '~a'~%"
 msgstr "ogiltigt s-uttryck för bibliografipost: ”~a”~%"
 
-#: src/guile/skribilo/biblio.scm:127
+#: src/guile/skribilo/biblio.scm:112
 #, scheme-format
 msgid "undefined bibliography error: ~a~%"
 msgstr "odefinierat bibliografipostsfel: ~a~%"
@@ -103,8 +98,11 @@ msgstr "Anropsstacksspår inte tillgängligt.~%"
 
 #: src/guile/skribilo/condition.scm:143
 #, scheme-format
-msgid "Use 'GUILE=\"guile --debug\" skribilo ...' for a detailed stack trace.~%"
-msgstr "Använd ”GUILE=\"guile --debug\" skribilo …” för en detaljerad stackspårning.~%"
+msgid ""
+"Use 'GUILE=\"guile --debug\" skribilo ...' for a detailed stack trace.~%"
+msgstr ""
+"Använd ”GUILE=\"guile --debug\" skribilo …” för en detaljerad "
+"stackspårning.~%"
 
 #: src/guile/skribilo/condition.scm:163
 #, scheme-format
@@ -151,12 +149,12 @@ msgstr "odefinierat skribilo-fel: ~S~%"
 msgid "unexpected error condition: ~A~%"
 msgstr "oväntat felvillkor: ~A~%"
 
-#: src/guile/skribilo/engine.scm:74
+#: src/guile/skribilo/engine.scm:75
 #, scheme-format
 msgid "unknown engine `~a'~%"
 msgstr "okänd motor ”~a”~%"
 
-#: src/guile/skribilo/engine.scm:79
+#: src/guile/skribilo/engine.scm:80
 #, scheme-format
 msgid "undefined engine error: ~A~%"
 msgstr "”odefinierad motor”-fel: ~A~%"
@@ -166,17 +164,17 @@ msgstr "”odefinierad motor”-fel: ~A~%"
 msgid "the-index: char offset '~A' out of bounds~%"
 msgstr "the-index: teckenoffset ”~A” utanför intervall~%"
 
-#: src/guile/skribilo/source.scm:70
+#: src/guile/skribilo/source.scm:69
 #, scheme-format
 msgid "source language '~a' does not have an extractor~%"
 msgstr "källspråk ”~a” har inte en extraherare~%"
 
-#: src/guile/skribilo/source.scm:75
+#: src/guile/skribilo/source.scm:74
 #, scheme-format
 msgid "source definition of '~a' in language '~a' not found~%"
 msgstr "källdefinition av ”~a” i språk ”~a” hittades inte~%"
 
-#: src/guile/skribilo/source.scm:81
+#: src/guile/skribilo/source.scm:80
 #, scheme-format
 msgid "undefined source error: ~A~%"
 msgstr "odefinierat källfel: ~A~%"
@@ -191,47 +189,53 @@ msgstr "ogiltig SUI-form: ~A~%"
 msgid "undefined SUI error: ~A~%"
 msgstr "odefinierat SUI-fel: ~A~%"
 
-#: src/guile/skribilo/verify.scm:75
+#: src/guile/skribilo/verify.scm:74
 #, scheme-format
 msgid "option '~a' of markup '~a' not supported by engine '~a'~%"
 msgstr "flagga ”~a” för markup ”~a” stöds inte av motor ”~a”~%"
 
-#: src/guile/skribilo/verify.scm:82
+#: src/guile/skribilo/verify.scm:81
 #, scheme-format
 msgid "undefined verify error: ~a~%"
 msgstr "odefinierat verifikationsfel: ~a~%"
 
-#: src/guile/skribilo/engine/lout.scm:2425
-#: src/guile/skribilo/engine/info.scm:809
+#: src/guile/skribilo/engine/lout.scm:2439
+#: src/guile/skribilo/engine/info.scm:838
 msgid "image URLs are not supported"
 msgstr "bild-URL:er stöds inte"
 
-#: src/guile/skribilo/engine/info.scm:177
+#: src/guile/skribilo/engine/info.scm:199
 #, scheme-format
 msgid "Info node title '~A' already used"
 msgstr "Titel för infonod ”~A” används redan"
 
-#: src/guile/skribilo/engine/info.scm:180
+#: src/guile/skribilo/engine/info.scm:202
 msgid "previous occurrence was here"
 msgstr "föregående förekomst var här"
 
-#: src/guile/skribilo/package/base.scm:538
-msgid "file, start/stop, and definition cannot be combined with body"
+#. TRANSLATORS: 'file', 'start', 'stop', and
+#. 'definition' denote parameter names; they must not
+#. be translated.  Likewise for the 3 subsequent
+#. strings.
+#: src/guile/skribilo/package/base.scm:548
+#, fuzzy
+msgid "file, start/stop, and definitioncannot be combined with body"
 msgstr "file, start/stop, och definition kan inte kombineras med kropp"
 
-#: src/guile/skribilo/package/base.scm:543
+#: src/guile/skribilo/package/base.scm:553
 msgid "start/stop are exclusive with a definition"
 msgstr "start/stop kan inte förekomma med en definition"
 
-#: src/guile/skribilo/package/base.scm:547
-msgid "start/stop and definition require a file specification"
+#: src/guile/skribilo/package/base.scm:557
+#, fuzzy
+msgid "start/stop and definition require afile specification"
 msgstr "start/stop och definition kräver en filspecifikation"
 
-#: src/guile/skribilo/package/base.scm:552
+#: src/guile/skribilo/package/base.scm:562
 msgid "definition requires a language specification"
 msgstr "definition kräver en språkdefinition"
 
-#: src/guile/skribilo/package/base.scm:562
+#: src/guile/skribilo/package/base.scm:572
 msgid "start line is greater than stop line"
 msgstr "startrad är större än stopprad"
 
@@ -261,102 +265,143 @@ msgstr "Användning: skribilo [FLAGGOR] [INDATA]"
 msgid ""
 "\n"
 "Process Skribilo document from file INPUT (or standard input) using the\n"
-"specified reader syntax or the 'skribe' syntax, and produce its output using\n"
+"specified reader syntax or the 'skribe' syntax, and produce its output "
+"using\n"
 "the specified engine or the 'html' engine.\n"
 msgstr ""
 "\n"
 "Behandla Skribilo-dokument från filen INDATA (eller standardinmatning) med\n"
-"den definierade läsarsyntaxen eller ”skribe”-syntaxen, och producera dess utdata via\n"
+"den definierade läsarsyntaxen eller ”skribe”-syntaxen, och producera dess "
+"utdata via\n"
 "den angivna motorn eller ”html”-motorn.\n"
 
 #: src/guile/skribilo.scm:72
+#, fuzzy
 msgid ""
-"  -R, --reader=READER    use READER to parse the input file;\n"
+"-R, --reader=READER    use READER to parse the input file;\n"
 "                         e.g., 'skribe' (default) or 'outline'\n"
 msgstr ""
 "  -R, --reader=LÄSARE    använd LÄSARE för att tolka indatafilen;\n"
 "                         t.ex., ”skribe” (standard) eller ”outline”\n"
 
 #: src/guile/skribilo.scm:75
-msgid "  -t, --target=ENGINE    use ENGINE as the output engine; e.g., 'html'\n"
-msgstr "  -t, --target=MOTOR     använd MOTOR som utmatningsmotor, t.ex. ”html”\n"
+#, fuzzy
+msgid "-t, --target=ENGINE    use ENGINE as the output engine; e.g., 'html'\n"
+msgstr ""
+"  -t, --target=MOTOR     använd MOTOR som utmatningsmotor, t.ex. ”html”\n"
 
 #: src/guile/skribilo.scm:77
-msgid "  -c, --custom=C=VAL     use VAL as the value of ENGINE's custom C\n"
-msgstr "  -c, --custom=C=VÄR     använd VÄR som värdet för MOTORNs anpassade C\n"
+#, fuzzy
+msgid "-c, --custom=C=VAL     use VAL as the value of ENGINE's custom C\n"
+msgstr ""
+"  -c, --custom=C=VÄR     använd VÄR som värdet för MOTORNs anpassade C\n"
 
 #: src/guile/skribilo.scm:79
-msgid "  -o, --output=FILE      write output to FILE\n"
+#, fuzzy
+msgid "-o, --output=FILE      write output to FILE\n"
 msgstr "  -o, --output=FIL       skriv utmatning till FIL\n"
 
 #: src/guile/skribilo.scm:81
-msgid "      --compat=COMPAT    use COMPAT as the compatibility layer; e.g., 'skribe'\n"
-msgstr "      --compat=KOMPAT    använd KOMPAT som kompatibilitetslagret, t.ex. ”skribe”\n"
+#, fuzzy
+msgid ""
+"--compat=COMPAT    use COMPAT as the compatibility layer; e.g., 'skribe'\n"
+msgstr ""
+"      --compat=KOMPAT    använd KOMPAT som kompatibilitetslagret, t.ex. "
+"”skribe”\n"
 
 #: src/guile/skribilo.scm:84
-msgid "  -I, --doc-path=DIR     prepend DIR to the document include path\n"
-msgstr "  -I, --doc-path=KAT     infoga KAT först bland inklusionssökvägarna för dokument\n"
+#, fuzzy
+msgid "-I, --doc-path=DIR     prepend DIR to the document include path\n"
+msgstr ""
+"  -I, --doc-path=KAT     infoga KAT först bland inklusionssökvägarna för "
+"dokument\n"
 
 #: src/guile/skribilo.scm:86
-msgid "  -B, --bib-path=DIR     prepend DIR to the bibliography include path\n"
-msgstr "  -B, --bib-path=KAT     infoga KAT först bland inklusionssökvägarna för bibliografi\n"
+#, fuzzy
+msgid "-B, --bib-path=DIR     prepend DIR to the bibliography include path\n"
+msgstr ""
+"  -B, --bib-path=KAT     infoga KAT först bland inklusionssökvägarna för "
+"bibliografi\n"
 
 #: src/guile/skribilo.scm:88
-msgid "  -S, --source-path=DIR  prepend DIR to the source include path\n"
-msgstr "  -S, --source-path=KAT  infoga KAT först bland inklusionssökvägarna för källkod\n"
+#, fuzzy
+msgid "-S, --source-path=DIR  prepend DIR to the source include path\n"
+msgstr ""
+"  -S, --source-path=KAT  infoga KAT först bland inklusionssökvägarna för "
+"källkod\n"
 
 #: src/guile/skribilo.scm:90
-msgid "  -P, --image-path=DIR   prepend DIR to the image include path\n"
-msgstr "  -P, --image-path=KAT   infoga KAT först bland inklusionssökvägarna för bilder\n"
+#, fuzzy
+msgid "-P, --image-path=DIR   prepend DIR to the image include path\n"
+msgstr ""
+"  -P, --image-path=KAT   infoga KAT först bland inklusionssökvägarna för "
+"bilder\n"
 
 #: src/guile/skribilo.scm:92
-msgid "  -U, --sui-path=DIR     prepend DIR to the Skribe URL Index (SUI) search path\n"
-msgstr "  -U, --sui-path=KAT     infoga KAT först bland inklusionssökvägarna för Skribe URL Index (SUI)\n"
+#, fuzzy
+msgid ""
+"-U, --sui-path=DIR     prepend DIR to the Skribe URL Index (SUI) search "
+"path\n"
+msgstr ""
+"  -U, --sui-path=KAT     infoga KAT först bland inklusionssökvägarna för "
+"Skribe URL Index (SUI)\n"
 
 #: src/guile/skribilo.scm:95
-msgid "  -b, --base=BASE        strip BASE from all hyperlinks ('html' engine)\n"
-msgstr "  -b, --base=BAS         kapa bort BAS från alla hyperlänkar (”html”-motor)\n"
+#, fuzzy
+msgid "-b, --base=BASE        strip BASE from all hyperlinks ('html' engine)\n"
+msgstr ""
+"  -b, --base=BAS         kapa bort BAS från alla hyperlänkar (”html”-motor)\n"
 
 #: src/guile/skribilo.scm:97
+#, fuzzy
 msgid ""
-"  -e, --eval=EXPR        prepend EXPR to the list of expressions to be\n"
+"-e, --eval=EXPR        prepend EXPR to the list of expressions to be\n"
 "                         evaluted before the input file is processed\n"
 msgstr ""
 "  -e, --eval=UTTR        infoga UTTR först bland listan över uttryck som\n"
 "                         utvärderas innan inmatningsfilen behandlas\n"
 
 #: src/guile/skribilo.scm:100
-msgid "  -p, --preload=FILE     preload FILE before processing the input file\n"
-msgstr "  -p, --preload=FIL      förinläs FIL innan inmatningsfilen behandlas\n"
+#, fuzzy
+msgid "-p, --preload=FILE     preload FILE before processing the input file\n"
+msgstr ""
+"  -p, --preload=FIL      förinläs FIL innan inmatningsfilen behandlas\n"
 
 #: src/guile/skribilo.scm:103
-msgid "  -v, --verbose[=LEVEL]  be verbose, unless LEVEL is 0\n"
+#, fuzzy
+msgid "-v, --verbose[=LEVEL]  be verbose, unless LEVEL is 0\n"
 msgstr "  -v, --verbose[=NIVÅ]   var utförlig, om inte NIVÅ är 0\n"
 
 #: src/guile/skribilo.scm:105
-msgid "  -w, --warning[=LEVEL]  issue warnings, unless LEVEL is 0\n"
+#, fuzzy
+msgid "-w, --warning[=LEVEL]  issue warnings, unless LEVEL is 0\n"
 msgstr "  -w, --warning[=NIVÅ]   mata ut varningar, om NIVÅ inte är 0\n"
 
 #: src/guile/skribilo.scm:107
+#, fuzzy
 msgid ""
-"  -g, --debug[=ARG]      issue debugging output, unless ARG is 0; if ARG is\n"
+"-g, --debug[=ARG]      issue debugging output, unless ARG is 0; if ARG is\n"
 "                         not a number, it is interpreted as a symbol to be\n"
 "                         watched\n"
 msgstr ""
-"  -g, --debug[=ARG]      mata ut felsökningutskrifter, om inte ARG är 0; om ARG inte\n"
+"  -g, --debug[=ARG]      mata ut felsökningutskrifter, om inte ARG är 0; om "
+"ARG inte\n"
 "                         är ett tal, tolkas det som en symbol som ska\n"
 "                         bevakas\n"
 
 #: src/guile/skribilo.scm:111
-msgid "      --no-color         disable colored debugging output\n"
+#, fuzzy
+msgid "--no-color         disable colored debugging output\n"
 msgstr "      --no-color         inaktivera färgad felsökningsutmatning\n"
 
 #: src/guile/skribilo.scm:114
-msgid "  -h, --help             display this help text and exit\n"
+#, fuzzy
+msgid "-h, --help             display this help text and exit\n"
 msgstr "  -h, --help             visa denna hjälptext och avsluta\n"
 
 #: src/guile/skribilo.scm:116
-msgid "  -V, --version          display version information and exit\n"
+#, fuzzy
+msgid "-V, --version          display version information and exit\n"
 msgstr "  -V, --version          visa versionsinformation och avsluta\n"
 
 #: src/guile/skribilo.scm:119
@@ -378,3 +423,7 @@ msgstr "~a: ogiltigt anpassningsvärde"
 #, scheme-format
 msgid "warning: failed to install locale: ~a~%"
 msgstr "varning: misslyckades att installera lokal: ~a~%"
+
+#, scheme-format
+#~ msgid "invalid bibliography entry template: '~a', in '~a'~%"
+#~ msgstr "ogiltig mall för bibliografipost: ”~a”, i ”~a”~%"

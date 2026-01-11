@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: skribilo 0.9.3.16\n"
 "Report-Msgid-Bugs-To: ludo@gnu.org\n"
-"POT-Creation-Date: 2017-03-15 11:02+0100\n"
+"POT-Creation-Date: 2026-01-11 01:55+0000\n"
 "PO-Revision-Date: 2021-03-12 10:11+0100\n"
 "Last-Translator: Nicolas Bruche <nbruche@riseup.net>\n"
 "Language-Team: Esperanto <translation-team-eo@lists.sourceforge.net>\n"
@@ -23,75 +23,70 @@ msgstr "neatendita signo en modulo Skribilo"
 
 #. TRANSLATORS: The next few msgids are fragments of
 #. bibliography items.
-#: src/guile/skribilo/biblio/template.scm:153
-#: src/guile/skribilo/biblio/template.scm:213
+#: src/guile/skribilo/biblio/template.scm:146
+#: src/guile/skribilo/biblio/template.scm:206
 msgid "Technical Report"
 msgstr "Teknika Raporto"
 
-#: src/guile/skribilo/biblio/template.scm:160
-#: src/guile/skribilo/biblio/template.scm:166
-#: src/guile/skribilo/biblio/template.scm:182
+#: src/guile/skribilo/biblio/template.scm:153
+#: src/guile/skribilo/biblio/template.scm:159
+#: src/guile/skribilo/biblio/template.scm:175
 msgid "In "
 msgstr "En "
 
-#: src/guile/skribilo/biblio/template.scm:183
+#: src/guile/skribilo/biblio/template.scm:176
 msgid "editor"
 msgstr "redaktilo"
 
-#: src/guile/skribilo/biblio/template.scm:184
+#: src/guile/skribilo/biblio/template.scm:177
 msgid "Chapter "
 msgstr "Ĉapitro "
 
-#: src/guile/skribilo/biblio/template.scm:189
+#: src/guile/skribilo/biblio/template.scm:182
 msgid "PhD Thesis"
 msgstr "Disertaĵo de filozofia doktoreco"
 
-#: src/guile/skribilo/ast.scm:139
+#: src/guile/skribilo/ast.scm:140
 #, scheme-format
 msgid "orphan node: ~a~%"
 msgstr "orfa nodo: ~a~%"
 
-#: src/guile/skribilo/ast.scm:146
+#: src/guile/skribilo/ast.scm:147
 #, scheme-format
 msgid "cycle found in AST: ~a~%"
 msgstr "ciklo estis trovata en AST: ~a~%"
 
-#: src/guile/skribilo/ast.scm:153
+#: src/guile/skribilo/ast.scm:154
 #, scheme-format
 msgid "~a: unknown markup option for '~a'~%"
 msgstr "~a: nekonata markadmodifilo por '~a'~%"
 
-#: src/guile/skribilo/ast.scm:161
+#: src/guile/skribilo/ast.scm:162
 #, scheme-format
 msgid "'~a' (~a): markup identifier already bound~%"
 msgstr "'~a' (~a): markadidentigilo jam estas ligita~%"
 
-#: src/guile/skribilo/ast.scm:169
+#: src/guile/skribilo/ast.scm:170
 #, scheme-format
 msgid "undefined AST error: ~a~%"
 msgstr "nedifinita AST-eraro: ~a~%"
 
-#: src/guile/skribilo/biblio.scm:111
+#: src/guile/skribilo/biblio.scm:101
 #, scheme-format
 msgid "~a:~a:~a: invalid bibliography entry: ~a~%"
 msgstr "~a:~a:~a: malvalida bibliografienigo: ~a~%"
 
-#: src/guile/skribilo/biblio.scm:114
+#: src/guile/skribilo/biblio.scm:104
 #, scheme-format
 msgid "invalid bibliography entry: ~a~%"
 msgstr "malvalida bibliografienigo: ~a~%"
 
-#: src/guile/skribilo/biblio.scm:118
-#, scheme-format
-msgid "invalid bibliography entry template: '~a', in '~a'~%"
-msgstr "malvalida ŝablono de bibliografienigo: '~a', en '~a'~%"
-
-#: src/guile/skribilo/biblio.scm:123
+#: src/guile/skribilo/biblio.scm:108
 #, scheme-format
 msgid "invalid bibliography entry s-exp: '~a'~%"
 msgstr "malvalida s-exp de bibliografienigo: '~a'~%"
 
-#: src/guile/skribilo/biblio.scm:127
+#: src/guile/skribilo/biblio.scm:112
 #, scheme-format
 msgid "undefined bibliography error: ~a~%"
 msgstr "nedifinita bibliografieraro: ~a~%"
@@ -103,7 +98,8 @@ msgstr "Spuro de la vokstako ne disponeblas.~%"
 
 #: src/guile/skribilo/condition.scm:143
 #, scheme-format
-msgid "Use 'GUILE=\"guile --debug\" skribilo ...' for a detailed stack trace.~%"
+msgid ""
+"Use 'GUILE=\"guile --debug\" skribilo ...' for a detailed stack trace.~%"
 msgstr "Uzu 'GUILE=\"guile --debug\" skribilo ...' por detala stakspuro.~%"
 
 #: src/guile/skribilo/condition.scm:163
@@ -166,17 +162,17 @@ msgstr "nedifinita motoreraro: ~A~%"
 msgid "the-index: char offset '~A' out of bounds~%"
 msgstr "the-index: signodeŝovo '~A' estas ekster limoj~%"
 
-#: src/guile/skribilo/source.scm:70
+#: src/guile/skribilo/source.scm:69
 #, scheme-format
 msgid "source language '~a' does not have an extractor~%"
 msgstr "fontkoda lingvo '~a' ne havas eltirilon~%"
 
-#: src/guile/skribilo/source.scm:75
+#: src/guile/skribilo/source.scm:74
 #, scheme-format
 msgid "source definition of '~a' in language '~a' not found~%"
 msgstr "fontkoda difino de '~a' en la lingvo '~a' ne estis trovata~%"
 
-#: src/guile/skribilo/source.scm:81
+#: src/guile/skribilo/source.scm:80
 #, scheme-format
 msgid "undefined source error: ~A~%"
 msgstr "nedifinita fontkoda eraro: ~A~%"
@@ -191,27 +187,28 @@ msgstr "malvalida formularo SUI: ~A~%"
 msgid "undefined SUI error: ~A~%"
 msgstr "nedifinita SUI-eraro: ~A~%"
 
-#: src/guile/skribilo/verify.scm:75
+#: src/guile/skribilo/verify.scm:74
 #, scheme-format
 msgid "option '~a' of markup '~a' not supported by engine '~a'~%"
-msgstr "modifilo '~a' de la markado '~a' ne estas subtenata de la motoro '~a'~%"
+msgstr ""
+"modifilo '~a' de la markado '~a' ne estas subtenata de la motoro '~a'~%"
 
-#: src/guile/skribilo/verify.scm:82
+#: src/guile/skribilo/verify.scm:81
 #, scheme-format
 msgid "undefined verify error: ~a~%"
 msgstr "nedifinita kontroleraro: ~a~%"
 
-#: src/guile/skribilo/engine/lout.scm:2425
-#: src/guile/skribilo/engine/info.scm:809
+#: src/guile/skribilo/engine/lout.scm:2439
+#: src/guile/skribilo/engine/info.scm:838
 msgid "image URLs are not supported"
 msgstr "bildaj URL-oj ne estas subtenataj"
 
-#: src/guile/skribilo/engine/info.scm:177
+#: src/guile/skribilo/engine/info.scm:199
 #, scheme-format
 msgid "Info node title '~A' already used"
 msgstr "la titolo de la Info-nodo '~A' jam estas uzata"
 
-#: src/guile/skribilo/engine/info.scm:180
+#: src/guile/skribilo/engine/info.scm:202
 msgid "previous occurrence was here"
 msgstr "antaŭa apero okazis tie ĉi"
 
@@ -219,23 +216,26 @@ msgstr "antaŭa apero okazis tie ĉi"
 #. 'definition' denote parameter names; they must not
 #. be translated.  Likewise for the 3 subsequent
 #. strings.
-#: src/guile/skribilo/package/base.scm:542
-msgid "file, start/stop, and definition cannot be combined with body"
-msgstr "'file', 'start/stop', kaj 'definition' ne povas esti kombinataj kun la korpo"
+#: src/guile/skribilo/package/base.scm:548
+#, fuzzy
+msgid "file, start/stop, and definitioncannot be combined with body"
+msgstr ""
+"'file', 'start/stop', kaj 'definition' ne povas esti kombinataj kun la korpo"
 
-#: src/guile/skribilo/package/base.scm:547
+#: src/guile/skribilo/package/base.scm:553
 msgid "start/stop are exclusive with a definition"
 msgstr "'start/stop' ne povas esti uzata kune kun 'definition'"
 
-#: src/guile/skribilo/package/base.scm:551
-msgid "start/stop and definition require a file specification"
+#: src/guile/skribilo/package/base.scm:557
+#, fuzzy
+msgid "start/stop and definition require afile specification"
 msgstr "'start/stop' kaj 'definition' postulas specifon de 'file'"
 
-#: src/guile/skribilo/package/base.scm:556
+#: src/guile/skribilo/package/base.scm:562
 msgid "definition requires a language specification"
 msgstr "'definition' postulas specifon de 'language'"
 
-#: src/guile/skribilo/package/base.scm:566
+#: src/guile/skribilo/package/base.scm:572
 msgid "start line is greater than stop line"
 msgstr "la komenca linio estas pli granda, ol la halta linio"
 
@@ -265,102 +265,142 @@ msgstr "Uzado: skribilo [MODIFILOJ] [ENIGO]"
 msgid ""
 "\n"
 "Process Skribilo document from file INPUT (or standard input) using the\n"
-"specified reader syntax or the 'skribe' syntax, and produce its output using\n"
+"specified reader syntax or the 'skribe' syntax, and produce its output "
+"using\n"
 "the specified engine or the 'html' engine.\n"
 msgstr ""
 "\n"
-"Procezi la dokumenton Skribilo el la dosiero ENIGO (aŭ la norma enigo) uzante la\n"
-"indikitan legilsintakson aŭ la sintakson 'skribe', kaj produkti ĝian eligon uzante\n"
+"Procezi la dokumenton Skribilo el la dosiero ENIGO (aŭ la norma enigo) "
+"uzante la\n"
+"indikitan legilsintakson aŭ la sintakson 'skribe', kaj produkti ĝian eligon "
+"uzante\n"
 "la indikitan motoron aŭ la motoron 'html'.\n"
 
 #: src/guile/skribilo.scm:72
+#, fuzzy
 msgid ""
-"  -R, --reader=READER    use READER to parse the input file;\n"
+"-R, --reader=READER    use READER to parse the input file;\n"
 "                         e.g., 'skribe' (default) or 'outline'\n"
 msgstr ""
 "  -R, --reader=LEGILO    uzi LEGILO por analizi la enigdosieron;\n"
 "                         ekz., 'skribe' (apriore) aŭ 'outline'\n"
 
 #: src/guile/skribilo.scm:75
-msgid "  -t, --target=ENGINE    use ENGINE as the output engine; e.g., 'html'\n"
+#, fuzzy
+msgid "-t, --target=ENGINE    use ENGINE as the output engine; e.g., 'html'\n"
 msgstr "  -t, --target=MOTORO    uzi MOTORO kiel eligmotoron; ekz., 'html'\n"
 
 #: src/guile/skribilo.scm:77
-msgid "  -c, --custom=C=VAL     use VAL as the value of ENGINE's custom C\n"
-msgstr "  -c, --custom=C=VAL     uzi VAL kiel valoron de la propraĵo C de la MOTORO\n"
+#, fuzzy
+msgid "-c, --custom=C=VAL     use VAL as the value of ENGINE's custom C\n"
+msgstr ""
+"  -c, --custom=C=VAL     uzi VAL kiel valoron de la propraĵo C de la MOTORO\n"
 
 #: src/guile/skribilo.scm:79
-msgid "  -o, --output=FILE      write output to FILE\n"
+#, fuzzy
+msgid "-o, --output=FILE      write output to FILE\n"
 msgstr "  -o, --output=DOSIERO   skribi la eligon al DOSIERO\n"
 
 #: src/guile/skribilo.scm:81
-msgid "      --compat=COMPAT    use COMPAT as the compatibility layer; e.g., 'skribe'\n"
-msgstr "      --compat=KONGRUO   uzi KONGRUO kiel kongrutavolon; ekz., 'skribe'\n"
+#, fuzzy
+msgid ""
+"--compat=COMPAT    use COMPAT as the compatibility layer; e.g., 'skribe'\n"
+msgstr ""
+"      --compat=KONGRUO   uzi KONGRUO kiel kongrutavolon; ekz., 'skribe'\n"
 
 #: src/guile/skribilo.scm:84
-msgid "  -I, --doc-path=DIR     prepend DIR to the document include path\n"
-msgstr "  -I, --doc-path=UJO     antaŭglui UJO al la inkluzivovojo de la dokumentoj\n"
+#, fuzzy
+msgid "-I, --doc-path=DIR     prepend DIR to the document include path\n"
+msgstr ""
+"  -I, --doc-path=UJO     antaŭglui UJO al la inkluzivovojo de la dokumentoj\n"
 
 #: src/guile/skribilo.scm:86
-msgid "  -B, --bib-path=DIR     prepend DIR to the bibliography include path\n"
-msgstr "  -B, --bib-path=UJO     antaŭglui UJO al la inkluzivovojo de la bibliografioj\n"
+#, fuzzy
+msgid "-B, --bib-path=DIR     prepend DIR to the bibliography include path\n"
+msgstr ""
+"  -B, --bib-path=UJO     antaŭglui UJO al la inkluzivovojo de la "
+"bibliografioj\n"
 
 #: src/guile/skribilo.scm:88
-msgid "  -S, --source-path=DIR  prepend DIR to the source include path\n"
-msgstr "  -S, --source-path=UJO  antaŭglui UJO al la inkluzivovojo de la fontkodoj\n"
+#, fuzzy
+msgid "-S, --source-path=DIR  prepend DIR to the source include path\n"
+msgstr ""
+"  -S, --source-path=UJO  antaŭglui UJO al la inkluzivovojo de la fontkodoj\n"
 
 #: src/guile/skribilo.scm:90
-msgid "  -P, --image-path=DIR   prepend DIR to the image include path\n"
-msgstr "  -P, --image-path=UJO   antaŭglui UJO al la inkluzivovojo de la bildoj\n"
+#, fuzzy
+msgid "-P, --image-path=DIR   prepend DIR to the image include path\n"
+msgstr ""
+"  -P, --image-path=UJO   antaŭglui UJO al la inkluzivovojo de la bildoj\n"
 
 #: src/guile/skribilo.scm:92
-msgid "  -U, --sui-path=DIR     prepend DIR to the Skribe URL Index (SUI) search path\n"
-msgstr "  -U, --sui-path=UJO     antaŭglui UJO al la serĉvojo de la URL-indekso de Skribe (SUI)\n"
+#, fuzzy
+msgid ""
+"-U, --sui-path=DIR     prepend DIR to the Skribe URL Index (SUI) search "
+"path\n"
+msgstr ""
+"  -U, --sui-path=UJO     antaŭglui UJO al la serĉvojo de la URL-indekso de "
+"Skribe (SUI)\n"
 
 #: src/guile/skribilo.scm:95
-msgid "  -b, --base=BASE        strip BASE from all hyperlinks ('html' engine)\n"
-msgstr "  -b, --base=BAZO        formeti BAZO el ĉiuj hiperligiloj (motoro 'html')\n"
+#, fuzzy
+msgid "-b, --base=BASE        strip BASE from all hyperlinks ('html' engine)\n"
+msgstr ""
+"  -b, --base=BAZO        formeti BAZO el ĉiuj hiperligiloj (motoro 'html')\n"
 
 #: src/guile/skribilo.scm:97
+#, fuzzy
 msgid ""
-"  -e, --eval=EXPR        prepend EXPR to the list of expressions to be\n"
+"-e, --eval=EXPR        prepend EXPR to the list of expressions to be\n"
 "                         evaluted before the input file is processed\n"
 msgstr ""
-"  -e, --eval=ESPRIMO     antaŭglui ESPRIMO al la listo de esprimoj, kiu estas\n"
+"  -e, --eval=ESPRIMO     antaŭglui ESPRIMO al la listo de esprimoj, kiu "
+"estas\n"
 "                         taksata antaŭ ol la enigdosiero proceziĝas\n"
 
 #: src/guile/skribilo.scm:100
-msgid "  -p, --preload=FILE     preload FILE before processing the input file\n"
-msgstr "  -p, --preload=DOSIERO  antaŭŝargi DOSIERO antaŭ ol procezi la enigdosieron\n"
+#, fuzzy
+msgid "-p, --preload=FILE     preload FILE before processing the input file\n"
+msgstr ""
+"  -p, --preload=DOSIERO  antaŭŝargi DOSIERO antaŭ ol procezi la "
+"enigdosieron\n"
 
 #: src/guile/skribilo.scm:103
-msgid "  -v, --verbose[=LEVEL]  be verbose, unless LEVEL is 0\n"
+#, fuzzy
+msgid "-v, --verbose[=LEVEL]  be verbose, unless LEVEL is 0\n"
 msgstr "  -v, --verbose[=NIVELO] esti detalema, krom se NIVELO estas 0\n"
 
 #: src/guile/skribilo.scm:105
-msgid "  -w, --warning[=LEVEL]  issue warnings, unless LEVEL is 0\n"
+#, fuzzy
+msgid "-w, --warning[=LEVEL]  issue warnings, unless LEVEL is 0\n"
 msgstr "  -w, --warning[=NIVELO] eldoni avertojn, krom se NIVELO estas 0\n"
 
 #: src/guile/skribilo.scm:107
+#, fuzzy
 msgid ""
-"  -g, --debug[=ARG]      issue debugging output, unless ARG is 0; if ARG is\n"
+"-g, --debug[=ARG]      issue debugging output, unless ARG is 0; if ARG is\n"
 "                         not a number, it is interpreted as a symbol to be\n"
 "                         watched\n"
 msgstr ""
-"  -g, --debug[=ARG]      eldoni la sencimigan eligon, krom se ARG estas 0; se ARG\n"
-"                         ne estas nombro, ĝi estas interpretata kiel pririgardota\n"
+"  -g, --debug[=ARG]      eldoni la sencimigan eligon, krom se ARG estas 0; "
+"se ARG\n"
+"                         ne estas nombro, ĝi estas interpretata kiel "
+"pririgardota\n"
 "                         simbolo\n"
 
 #: src/guile/skribilo.scm:111
-msgid "      --no-color         disable colored debugging output\n"
+#, fuzzy
+msgid "--no-color         disable colored debugging output\n"
 msgstr "      --no-color         malŝalti la kolorigon de la sencimiga eligo\n"
 
 #: src/guile/skribilo.scm:114
-msgid "  -h, --help             display this help text and exit\n"
+#, fuzzy
+msgid "-h, --help             display this help text and exit\n"
 msgstr "  -h, --help             vidigi tiun ĉi helptekston kaj eliri\n"
 
 #: src/guile/skribilo.scm:116
-msgid "  -V, --version          display version information and exit\n"
+#, fuzzy
+msgid "-V, --version          display version information and exit\n"
 msgstr "  -V, --version          vidigi la versiinformojn kaj eliri\n"
 
 #: src/guile/skribilo.scm:119
@@ -382,3 +422,7 @@ msgstr "~a: malvalida valoro propra"
 #, scheme-format
 msgid "warning: failed to install locale: ~a~%"
 msgstr "averto: malsukceso dum la instalado de la lokaĵaro: ~a~%"
+
+#, scheme-format
+#~ msgid "invalid bibliography entry template: '~a', in '~a'~%"
+#~ msgstr "malvalida ŝablono de bibliografienigo: '~a', en '~a'~%"
