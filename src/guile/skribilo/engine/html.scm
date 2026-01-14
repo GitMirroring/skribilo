@@ -1669,10 +1669,10 @@ ignored, return #f."
 					    (markup-ident item))))
                             (html-open 'li
                                        `((class . ,(markup-class item))))
-			    (if ident  ;; produce an anchor
-                                (html-open 'a
-                                           `((name . ,(string-canonicalize ident))))
-                                (html-close 'a))
+			    (when ident  ;; produce an anchor
+                              (html-open 'a
+                                         `((name . ,(string-canonicalize ident))))
+                              (html-close 'a))
 			   (output item engine)
                            (html-close 'li)))
 			(markup-body node)))
