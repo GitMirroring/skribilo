@@ -972,17 +972,16 @@ ignored, return #f."
 	  (title-foreground (engine-custom engine 'title-foreground))
 	  (title-font (engine-custom engine 'title-font)))
       (when title
-        (html-open 'div
+        (html-open 'h1
                    `((class . "skribilo-title")
                      (style . ,(style-declaration
                                 `((color . ,(and (html-color-spec? title-foreground)
                                                  title-foreground))
                                   (background-color . ,(and (html-color-spec? title-background)
                                                             title-background))
-                                  (font-family . ,title-font)
-                                  (text-align . "center"))))))
+                                  (font-family . ,title-font))))))
         (output title engine)
-        (html-close 'div)
+        (html-close 'h1)
         (when authors
           (html-title-authors authors engine)))))
 

@@ -44,7 +44,6 @@ div.navtabs-title {
   background-repeat: repeat-x;
   padding: 30px;
   text-align: center;
-  font-size: 3em;
   min-height: 70px;
 }
 
@@ -66,9 +65,8 @@ div.navtabs-tabs > a {
   margin: 15px 15px;
 }
 
-div.skribilo-title {
-  font-size: 3em;
-  font-weight: bold;
+h1.skribilo-title {
+  text-align: center;
 }
 
 div.skribilo-body {
