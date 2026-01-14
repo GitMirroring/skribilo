@@ -1142,6 +1142,7 @@ ignored, return #f."
 				                                (string=? file (*destination-file*)))
 			                                   ""
 			                                   (strip-ref-base (or file (*destination-file*) "")))
+                                                       "#"
                                                        (string-canonicalize id)))))
 		                (output (markup-option parent :title)
                                         engine)
