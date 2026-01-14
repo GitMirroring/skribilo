@@ -582,11 +582,12 @@
 ;*---------------------------------------------------------------------*/
 ;*    html-open ...                                                    */
 ;*---------------------------------------------------------------------*/
-(define* (html-open tag #:optional (attributes '()))
+(define* (html-open tag #:optional (attributes '()) (newline? #t))
   "Output opening TAG with ATTRIBUTES, an association list mapping
 attribute names to their values. Attribute names may be symbols or
 strings. Values may be symbols, strings or numbers. Attributes with
-unspecified or #f values are ignored."
+unspecified or #f values are ignored. If NEWLINE? is #t, add a newline
+at the end."
   (display "<")
   (display tag)
   (for-each (match-lambda
@@ -596,7 +597,8 @@ unspecified or #f values are ignored."
                  (format #t " ~a=\"~a\"" name value))))
             attributes)
   (display ">")
-  (newline))
+  (when newline?
+    (newline)))
 
 ;*---------------------------------------------------------------------*/
 ;*    html-close ...                                                   */
@@ -629,10 +631,11 @@ ignored, return #f."
 ;*---------------------------------------------------------------------*/
 ;*    html-markup-class ...                                            */
 ;*---------------------------------------------------------------------*/
-(define (html-markup-class m)
+(define* (html-markup-class m #:optional (newline? #t))
   (lambda (node engine)
     (html-open m
-               `((class . ,(markup-class node))))))
+               `((class . ,(markup-class node)))
+               newline?)))
 
 ;*---------------------------------------------------------------------*/
 ;*    html-color-spec? ...                                             */
@@ -1541,8 +1544,9 @@ ignored, return #f."
                                                                           "px")))
                                           (width . ,(and width
                                                          (string-append (html-width width)
-                                                                        "px"))))))))))
-    :after "</span>\n")
+                                                                        "px")))))))
+                           #f)))
+    :after "</span>")
 
 ;*---------------------------------------------------------------------*/
 ;*    frame ...                                                        */
@@ -1918,7 +1922,9 @@ ignored, return #f."
 ;*    Ornaments ...                                                    */
 ;*---------------------------------------------------------------------*/
 (markup-writer 'roman :before "")
-(markup-writer 'bold :before (html-markup-class "strong") :after "</strong>")
+(markup-writer 'bold
+  :before (html-markup-class "strong" #f)
+  :after "</strong>")
 (markup-writer 'underline :before (html-markup-class "u") :after "</u>")
 (markup-writer 'strike :before (html-markup-class "strike") :after "</strike>")
 (markup-writer 'emph :before (html-markup-class "em") :after "</em>")
@@ -2156,7 +2162,8 @@ ignored, return #f."
                             (markup-writer-get '&prog-line base-engine))))
                (html-open 'a
                           `((class . ,(markup-class node))
-                            (name . ,(string-canonicalize (markup-ident node)))))
+                            (name . ,(string-canonicalize (markup-ident node))))
+                          #f)
                (before node engine)))
    :after "</a>\n")
 
