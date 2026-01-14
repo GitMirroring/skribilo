@@ -1402,7 +1402,8 @@ ignored, return #f."
       (output title engine)
       ;; title stop string
       (display title-stop)
-      (html-close 'div)))
+      (html-close 'div)
+      ((html-markup-class "div") node engine)))
 
 ;*---------------------------------------------------------------------*/
 ;*    section ...  @label section@                                     */
