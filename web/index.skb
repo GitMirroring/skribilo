@@ -152,7 +152,8 @@ as the underlying Scheme implementation.])
 [LaTeX]), ,(context [ConTeXt]), and ,(info [Info]).])
          (item [Input using ,(skribe* [Skribe])'s ,(ref :skribe
 %user-sui :ident "skribe-syntax" :text [markup]) (see ,(ref :mark "self"
-:text [this example])), or using free form, markup-less text and
+:text [this example])), using ,(ref :skribe %user-sui :ident
+"commonmark-syntax" :text [CommonMark]), using
 conventions similar to those used in ,(ref :skribe %user-sui :ident
 "outline-syntax" :text [Emacs' outline mode]), or from an ,(ref :skribe
 %user-sui :ident "rss2-syntax" :text [RSS,(~)2 feed]).])
