@@ -2,7 +2,7 @@
 ;;;
 ;;; Copyright 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2018, 2020  Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright 2003, 2004  Manuel Serrano
-;;; Copyright 2022, 2023 Arun Isaac <arunisaac@systemreboot.net>
+;;; Copyright 2022, 2023, 2026 Arun Isaac <arunisaac@systemreboot.net>
 ;;;
 ;;;
 ;;; This file is part of Skribilo.
@@ -670,8 +670,7 @@ ignored, return #f."
 ;*    &html-html ...                                                   */
 ;*---------------------------------------------------------------------*/
 (markup-writer '&html-html
-   :before "<!-- 95% W3C COMPLIANT, 95% CSS FREE, RAW HTML -->
-<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">
+   :before "<!DOCTYPE html>
 <html>\n"
    :after "</html>")
 
