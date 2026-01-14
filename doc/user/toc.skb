@@ -24,7 +24,7 @@
 ;*---------------------------------------------------------------------*/
 (section :title "Table of contents" :file #t
 
-(p [The production of table of contains.])
+(p [The production of table of contents.])
 
 (doc-markup 'toc 
 	    '((:chapter [A boolean. The value ,(code "#t") forces the
