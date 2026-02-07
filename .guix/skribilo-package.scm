@@ -1,7 +1,7 @@
 ;;; guix.scm  --  Build recipe for GNU Guix.
 ;;;
 ;;; Copyright © 2020, 2023–2024 Ludovic Courtès <ludo@gnu.org>
-;;; Copyright © 2023–2024 Arun Isaac <arunisaac@systemreboot.net>
+;;; Copyright © 2023–2024, 2026 Arun Isaac <arunisaac@systemreboot.net>
 ;;;
 ;;; This file is part of Skribilo.
 ;;;
@@ -35,17 +35,57 @@
   #:use-module ((guix git-download) #:select (git-predicate))
   #:use-module (guix packages)
   #:use-module (guix profiles)
-  #:use-module (guix utils))
+  #:use-module (guix utils)
+  #:use-module (ice-9 match)
+  #:use-module (ice-9 popen)
+  #:use-module (srfi srfi-26)
+  #:use-module (rnrs io ports))
+
+(define (call-with-input-pipe command proc)
+  "Call PROC with input pipe to COMMAND. COMMAND is a list of program
+arguments."
+  (match command
+    ((prog args ...)
+     (let ((port #f))
+       (dynamic-wind
+         (lambda ()
+           (set! port (apply open-pipe* OPEN_READ prog args)))
+         (cut proc port)
+         (cut close-pipe port))))))
+
+(define %skribilo-version
+  (call-with-input-pipe (list "git" "tag" "--sort=-taggerdate"
+                              "--list" "v*")
+    (lambda (port)
+      (let ((line (get-line port)))
+        (if (eof-object? line)
+            ;; If there are no tags, assume first version.
+            "0.1.0"
+            (substring line (string-length "v")))))))
+
+(define skribilo-source-gexp
+  (with-imported-modules '((guix build utils))
+    #~(begin
+        (use-modules (guix build utils)
+                     (srfi srfi-26))
+
+        (copy-recursively #$(local-file ".." "skribilo-checkout"
+                                        #:recursive? #t
+                                        #:select?
+                                        (or (git-predicate (dirname (current-source-directory)))
+                                            (const #t)))
+                          #$output)
+        ;; Insert version from git. Without the version, the
+        ;; skribilo-version function returns "UNKNOWN".
+        (call-with-output-file (string-append #$output "/.tarball-version")
+          (cut display #$%skribilo-version <>)))))
 
 (define-public skribilo
   (package
     (inherit guix:skribilo)
     (version (string-append (package-version guix:skribilo) "-git"))
-    (source (local-file ".." "skribilo-checkout"
-                        #:recursive? #t
-                        #:select?
-                        (or (git-predicate (dirname (current-source-directory)))
-                            (const #t))))
+    (source (computed-file "skribilo-source"
+                           skribilo-source-gexp))
     (native-inputs (list autoconf automake gnu-gettext pkg-config))
     (inputs (list guile-3.0
                   imagemagick
