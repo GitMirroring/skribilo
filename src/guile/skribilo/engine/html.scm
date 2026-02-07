@@ -52,7 +52,8 @@
 
   #:export (html-engine html-title-engine html-file
            html-width html-class html-markup-class
-           html-title-authors))
+           html-title-authors html-open html-close
+           style-declaration html-color-spec?))
 
 (skribilo-module-syntax)
 

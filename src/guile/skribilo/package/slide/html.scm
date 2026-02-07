@@ -1,6 +1,7 @@
 ;;; html.scm  --  HTML implementation of the `slide' package.
 ;;;
 ;;; Copyright 2003, 2004  Manuel Serrano
+;;; Copyright 2026 Arun Isaac <arunisaac@systemreboot.net>
 ;;;
 ;;;
 ;;; This file is part of Skribilo.
@@ -27,7 +28,9 @@
   #:autoload   (skribilo resolve)     (resolve!)
   #:autoload   (skribilo output)      (output)
   #:autoload   (skribilo evaluator)   (evaluate-document)
-  #:autoload   (skribilo engine html) (html-width html-title-authors)
+  #:autoload   (skribilo engine html) (html-open html-close style-declaration
+                                       html-width html-title-authors
+                                       html-color-spec?)
 
   #:use-module (skribilo package slide)
   #:use-module (skribilo package base))
@@ -103,37 +106,25 @@
 ;*    html-slide-title ...                                             */
 ;*---------------------------------------------------------------------*/
 (define (html-slide-title n e)
-   (let* ((title (markup-body n))
-	  (authors (markup-option n 'author))
-	  (tbg (engine-custom e 'title-background))
-	  (tfg (engine-custom e 'title-foreground))
-	  (tfont (engine-custom e 'title-font)))
-      (format #t "<center><table cellspacing='0' cellpadding='0' width=\"~a\" class=\"skribilo-title\"><tbody>\n<tr>"
-	      (html-width (slide-body-width e)))
-      (if (string? tbg)
-	  (format #t  "<td bgcolor=\"~a\">" tbg)
-	  (display "<td>"))
-      (if (string? tfg)
-	  (format #t  "<font color=\"~a\">" tfg))
-      (if title
-	  (begin
-	     (display "<center>")
-	     (if (string? tfont)
-		 (begin
-		    (format #t  "<font ~a>" tfont)
-		    (output title e)
-		    (display "</font>"))
-		 (begin
-		    (display "<div class=\"skribilo-title\">")
-		    (output title e)
-		    (display "</div>")))
-	     (display "</center>\n")))
-      (if (not authors)
-	  (display "\n")
-	  (html-title-authors authors e))
-      (if (string? tfg)
-	  (display "</font>"))
-      (display "</td></tr></tbody></table></center>\n")))
+  (let* ((title (markup-body n))
+	 (authors (markup-option n 'author))
+	 (title-background (engine-custom e 'title-background))
+	 (title-foreground (engine-custom e 'title-foreground))
+	 (title-font (engine-custom e 'title-font)))
+    (when title
+      (html-open 'h1
+                 `((class . "skribilo-title")
+                   (style . ,(style-declaration
+                              `((color . ,(and (html-color-spec? title-foreground)
+                                               title-foreground))
+                                (background-color . ,(and (html-color-spec? title-background)
+                                                          title-background))
+                                (font-family . ,title-font)
+                                (width . ,(html-width (slide-body-width e))))))))
+      (output title e)
+      (html-close 'h1))
+    (when authors
+      (html-title-authors authors e))))
 
 
 
