@@ -1042,17 +1042,12 @@ ignored, return #f."
 ;*    html-title-authors ...                                           */
 ;*---------------------------------------------------------------------*/
 (define (html-title-authors authors engine)
-  (match authors
-    ((single-author)
-     (html-title-authors (list single-author)
-                         engine))
-    (authors
-     (html-open 'div
-                `((style . ,(style-declaration
-                             '((text-align . "center"))))))
-     (for-each (cut output <> engine)
-               authors)
-     (html-close 'div))))
+  (html-open 'div
+             `((style . ,(style-declaration
+                          '((text-align . "center"))))))
+  (for-each (cut output <> engine)
+            authors)
+  (html-close 'div))
 
 ;*---------------------------------------------------------------------*/
 ;*    author ...                                                       */
