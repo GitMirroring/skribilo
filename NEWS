@@ -1,4 +1,4 @@
-Copyright (C) 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2016, 2018, 2020 Ludovic Courtès <ludo@gnu.org>
+Copyright (C) 2005-2009, 2012-2013, 2016, 2018, 2020, 2026 Ludovic Courtès <ludo@gnu.org>
 Copyright (C) 2023, 2026 Arun Isaac <arunisaac@systemreboot.net>
 
   Copying and distribution of this file, with or without modification,
@@ -7,6 +7,14 @@ Copyright (C) 2023, 2026 Arun Isaac <arunisaac@systemreboot.net>
 
 
 
+* New in Skribilo 0.11.2
+
+** HTML engine
+*** Honor :class for ‘toc’
+
+It used to be that the HTML engine would ignore the :class argument in
+(toc :class "my-table-of-contents-class").  This is now fixed.
+
 * New in Skribilo 0.11.1
 
 ** Fix many bugs in port of HTML engine to CSS

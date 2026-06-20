@@ -1,6 +1,6 @@
 ;;; html.scm  --  HTML engine.
 ;;;
-;;; Copyright 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2018, 2020  Ludovic Courtès <ludo@gnu.org>
+;;; Copyright 2005-2009, 2011-2012, 2018, 2020, 2026  Ludovic Courtès <ludo@gnu.org>
 ;;; Copyright 2003, 2004  Manuel Serrano
 ;;; Copyright 2022, 2023, 2026 Arun Isaac <arunisaac@systemreboot.net>
 ;;;
@@ -1116,7 +1116,11 @@ ignored, return #f."
 	     (define (toc-entries entries)
                ;; Do not produce an empty table.
                (unless (null? entries)
-                 (html-open 'ol)
+                 (html-open 'ol
+                            (if (markup-class node)
+                                `((class . ,(markup-class node)))
+                                '()))
+
                  (for-each (match-lambda
                              ((parent children ...)
                               (let ((id (markup-ident parent))
